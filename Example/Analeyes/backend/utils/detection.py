@@ -1,6 +1,6 @@
 import cv2
 import dlib
-from utils.crop import crop_eye_with_eyebrows
+from crop import crop_eye_with_eyebrows
 # Load Dlib's face detector and shape predictor
 face_detector = dlib.get_frontal_face_detector()
 shape_predictor = dlib.shape_predictor(r"C:\Users\User\Desktop\FinalProject\AnaleyeApplication\utils\shape_predictor_68_face_landmarks.dat")
