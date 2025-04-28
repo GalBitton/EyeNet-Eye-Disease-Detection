@@ -1,5 +1,5 @@
 const app = require('./app');
-const container = require('./container/container');
+const container = require('./src/container/container');
 
 const config = container.get('config');
 const logger = container.get('logger');

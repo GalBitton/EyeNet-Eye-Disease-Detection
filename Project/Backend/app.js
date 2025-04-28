@@ -7,8 +7,8 @@ const path = require('path');
 const httpStatusCode = require('http-status-codes');
 
 const app = express();
-const container = require('./container/container');
-const analysisRoutes = require('./routes/analysisRoutes');
+const container = require('./src/container/container');
+const analysisRoutes = require('./src/routes/analysisRoutes');
 const logger = container.get('logger');
 
 // Enable helmet for security - helps secure Express apps by setting various HTTP headers
