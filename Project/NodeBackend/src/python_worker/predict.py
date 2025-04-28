@@ -17,8 +17,6 @@ def preprocess_eye(eye_img):
     eye_img = eye_img / 255.0
     return np.expand_dims(eye_img, axis=0)
 
-def load_model(model_path):
-    return tf.keras.models.load_model(model_path)
 
 def handle_frame(frame_path, haarcascade_face_path, haarcascade_eye_path, shape_predictor_path, model):
     left_eye, right_eye = detect_face_and_eyes(frame_path)
@@ -41,7 +39,8 @@ if __name__ == "__main__":
     haarcascade_eye_path = make_absolute_path(sys.argv[3])
     shape_predictor_path = make_absolute_path(sys.argv[4])
 
-    model = load_model(model_path)
+    print("Model path:", model_path)
+    model = tf.keras.models.load_model(model_path)
 
     while True:
         line = sys.stdin.readline()

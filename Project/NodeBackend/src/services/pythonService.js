@@ -11,10 +11,11 @@ class PythonService {
     startPythonWorker() {
         this.pythonProcess = spawn('python', [
             this.config.python_script,
+            this.config.model.path,
             this.config.haarcascade.face,
             this.config.haarcascade.eye,
             this.config.shape_predictor.dat,
-            this.config.model.path
+
         ]);
 
         this.pythonProcess.stdout.on('data', (data) => {
