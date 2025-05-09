@@ -29,7 +29,6 @@ const VideoRecorder = () => {
         const mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"});
         mediaRecorderRef.current = mediaRecorder;
 
-
         const chunks = [];
         mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) chunks.push(event.data);
