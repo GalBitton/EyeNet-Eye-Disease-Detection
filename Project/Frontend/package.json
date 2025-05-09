@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "../../Frontend/node_modules/.bin/vite",
-    "build": "../../Frontend/node_modules/.bin/vite build",
-    "lint": "../../Frontend/node_modules/.bin/eslint .",
-    "preview": "../../Frontend/node_modules/.bin/vite preview"
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@tensorflow-models/blazeface": "^0.1.0",
