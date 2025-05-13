@@ -1,32 +1,28 @@
-import React, {useRef, useState, useEffect} from "react";
+import React, { useRef, useState, useEffect } from "react";
 import * as ort from "onnxruntime-web";
+import axios from "axios";
 
 const VideoRecorder = () => {
     const videoRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const [recording, setRecording] = useState(false);
     const [countdown, setCountdown] = useState(5);
-    const [frames, setFrames] = useState([]);
     const [results, setResults] = useState([]);
-
+    const [analyzing, setAnalyzing] = useState(false);
 
     useEffect(() => {
         ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
-        ort.env.wasm.numThreads = 1;
-        ort.env.wasm.simd = false;
-        ort.env.wasm.proxy = false;
-        console.log("✅ onnxruntime-web configured to use basic WASM backend (no simd/thread)");
     }, []);
 
     const startCamera = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({video: true});
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoRef.current.srcObject = stream;
         videoRef.current.play();
     };
 
     const startRecording = () => {
         const stream = videoRef.current.srcObject;
-        const mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"});
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
         mediaRecorderRef.current = mediaRecorder;
 
         const chunks = [];
@@ -35,7 +31,7 @@ const VideoRecorder = () => {
         };
 
         mediaRecorder.onstop = () => {
-            const blob = new Blob(chunks, {type: "video/webm"});
+            const blob = new Blob(chunks, { type: "video/webm" });
             const url = URL.createObjectURL(blob);
             extractFramesToMemory(url);
         };
@@ -74,12 +70,10 @@ const VideoRecorder = () => {
         const ctx = canvas.getContext("2d");
         const capturedFrames = [];
 
-
         video.addEventListener("loadeddata", () => {
             const capture = () => {
                 if (video.ended || video.currentTime >= video.duration) {
-                    setFrames(capturedFrames);
-                    console.log(`✅ Extracted ${capturedFrames.length} frames`);
+                    analyzeAllFrames(capturedFrames);
                     return;
                 }
                 canvas.width = video.videoWidth;
@@ -92,8 +86,41 @@ const VideoRecorder = () => {
         });
     };
 
+    const detectBlurWithLaplacian = (canvas) => {
+        const ctx = canvas.getContext("2d");
+        const { width, height } = canvas;
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const gray = new Uint8ClampedArray(width * height);
+        for (let i = 0; i < width * height; i++) {
+            const r = imageData.data[i * 4];
+            const g = imageData.data[i * 4 + 1];
+            const b = imageData.data[i * 4 + 2];
+            gray[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+        }
+
+        const laplacian = new Float32Array(width * height);
+        const kernel = [0, 1, 0, 1, -4, 1, 0, 1, 0];
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let sum = 0;
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        const val = gray[(y + ky) * width + (x + kx)];
+                        const kval = kernel[(ky + 1) * 3 + (kx + 1)];
+                        sum += val * kval;
+                    }
+                }
+                laplacian[y * width + x] = sum;
+            }
+        }
+
+        const mean = laplacian.reduce((a, b) => a + b, 0) / laplacian.length;
+        const variance = laplacian.reduce((a, b) => a + (b - mean) ** 2, 0) / laplacian.length;
+        return variance;
+    };
+
     const preprocessImage = (imageData) => {
-        const {data, width, height} = imageData;
+        const { data, width, height } = imageData;
         const floatArray = new Float32Array(3 * width * height);
         for (let i = 0; i < width * height; i++) {
             floatArray[i] = data[i * 4] / 255;
@@ -105,11 +132,9 @@ const VideoRecorder = () => {
 
     const runYoloOnImage = async (base64Image) => {
         try {
-            console.log("📸 Loading image...");
             const img = new Image();
             img.src = base64Image;
             await new Promise((res) => (img.onload = res));
-            console.log("✅ Image loaded");
 
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
@@ -117,92 +142,123 @@ const VideoRecorder = () => {
             canvas.height = 640;
             ctx.drawImage(img, 0, 0, 640, 640);
             const imageData = ctx.getImageData(0, 0, 640, 640);
-            console.log("🖼️ Image converted to imageData");
 
             const inputTensor = new ort.Tensor("float32", preprocessImage(imageData), [1, 3, 640, 640]);
-            console.log("📦 Tensor created:", inputTensor);
 
             if (!window.yoloSession) {
-                console.log("🚀 Loading YOLO model...");
                 window.yoloSession = await ort.InferenceSession.create("/yolov8n-face-lindevs.onnx");
-                console.log("✅ Model loaded!");
             }
 
-            const feeds = {images: inputTensor};
-            console.log("📤 Running inference...");
+            const inputNames = window.yoloSession.inputNames;
+            const feeds = { [inputNames[0]]: inputTensor };
             const inferenceResults = await window.yoloSession.run(feeds);
-            console.log("✅ Inference result:", inferenceResults);
 
-            const output = inferenceResults[Object.keys(inferenceResults)[0]].data;
-            let maxScore = 0;
-            for (let i = 0; i < output.length; i += 6) {
-                const score = output[i + 4];
-                if (score > maxScore) maxScore = score;
+            const outputTensor = inferenceResults[Object.keys(inferenceResults)[0]];
+            const output = outputTensor.data;
+            const dims = outputTensor.dims;
+            const numBoxes = dims[2];
+
+            let bestScore = 0;
+            let bestBox = null;
+
+            for (let i = 0; i < numBoxes; i++) {
+                const x = output[i];
+                const y = output[1 * numBoxes + i];
+                const w = output[2 * numBoxes + i];
+                const h = output[3 * numBoxes + i];
+                const confidence = output[4 * numBoxes + i];
+
+                if (confidence > bestScore) {
+                    bestScore = confidence;
+                    bestBox = { x, y, w, h };
+                }
             }
 
-            return maxScore;
-
+            return { score: bestScore, box: bestBox };
         } catch (err) {
-            console.error("❌ Error in runYoloOnImage:", err);
-            return 0;
+            console.error("Error in runYoloOnImage:", err);
+            return { score: 0, box: null };
         }
     };
 
-    const analyzeAllFrames = async () => {
-        const temp = [];
-        for (const img of frames) {
-            const score = await runYoloOnImage(img);
-            temp.push({image: img, score});
-        }
+    const analyzeAllFrames = async (frameList) => {
+        setAnalyzing(true);
+        const temp = await Promise.all(frameList.map(async (img) => {
+            const image = new Image();
+            image.src = img;
+            await new Promise((res) => (image.onload = res));
 
-        const top30 = temp
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 640;
+            canvas.height = 640;
+            ctx.drawImage(image, 0, 0, 640, 640);
+
+            const blur = detectBlurWithLaplacian(canvas);
+            if (blur < 100) return null;
+
+            const { score, box } = await runYoloOnImage(canvas.toDataURL("image/png"));
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+
+            return { blob, score, box, blur };
+        }));
+
+        const filtered = temp.filter(Boolean);
+        const topImages = filtered
             .sort((a, b) => b.score - a.score)
-            .slice(0, Math.ceil(temp.length * 0.3));
+            .slice(0, Math.max(5, Math.ceil(filtered.length * 0.3)));
 
-        setResults(top30);
+        setResults(topImages);
+        setAnalyzing(false);
+
+        // שליחת Base64 לשרת
+        const blobToBase64 = (blob) => new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+
+        const dataToSend = await Promise.all(topImages.map(async (item) => ({
+            image: await blobToBase64(item.blob),
+            score: item.score,
+            blur: item.blur,
+            box: item.box
+        })));
+
+        await axios.post("http://localhost:8000/analyze", dataToSend, {
+            headers: { "Content-Type": "application/json" }
+        });
+
+        console.log("📤 Images sent to server");
     };
 
     return (
         <div className="container py-10 text-center">
-            <video ref={videoRef} className="mx-auto bg-black rounded-lg" muted/>
-            <div className="mt-6 flex gap-4 justify-center flex-wrap">
-                {!recording ? (
-                    <button className="primary-btn" onClick={async () => {
-                        await startCamera();
-                        startRecording();
-                    }}>
-                        Start Recording
-                    </button>
-                ) : (
-                    <button className="primary-btn bg-red-600" onClick={stopRecording}>
-                        Stop Recording
-                    </button>
-                )}
-
-                {frames.length > 0 && (
-                    <button className="primary-btn bg-purple-600" onClick={analyzeAllFrames}>
-                        Run YOLO
-                    </button>
-                )}
-            </div>
-
+            <video ref={videoRef} className="mx-auto bg-black rounded-lg" muted />
+            {!analyzing && (
+                <div className="mt-6 flex gap-4 justify-center flex-wrap">
+                    {!recording ? (
+                        <button className="primary-btn" onClick={async () => {
+                            await startCamera();
+                            startRecording();
+                        }}>
+                            Start Recording
+                        </button>
+                    ) : (
+                        <button className="primary-btn bg-red-600" onClick={stopRecording}>
+                            Stop Recording
+                        </button>
+                    )}
+                </div>
+            )}
             {recording && (
                 <div className="mt-4 text-lg font-semibold">
                     Recording... {countdown} sec left
                 </div>
             )}
-
-            {results.length > 0 && (
-                <div className="mt-10">
-                    <h3 className="text-xl font-bold mb-4">Top 30% Frames (YOLO Confidence)</h3>
-                    <div className="grid grid-cols-3 gap-4 px-4">
-                        {results.map((item, idx) => (
-                            <div key={idx} className="text-center">
-                                <img src={item.image} alt={`res-${idx}`} className="rounded shadow-lg"/>
-                                <div className="text-sm mt-1">Confidence: {(item.score * 100).toFixed(2)}%</div>
-                            </div>
-                        ))}
-                    </div>
+            {analyzing && (
+                <div className="mt-6 text-lg font-semibold text-blue-600 animate-pulse">
+                    🔍 Analyzing frames, please wait...
                 </div>
             )}
         </div>

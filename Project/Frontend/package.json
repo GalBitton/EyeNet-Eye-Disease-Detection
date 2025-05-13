@@ -12,9 +12,9 @@
   "dependencies": {
     "@tensorflow-models/blazeface": "^0.1.0",
     "aos": "^2.3.4",
-    "axios": "^1.8.4",
+    "axios": "^1.9.0",
     "jspdf": "^2.5.2",
-    "onnxruntime-web": "^1.21.1",
+    "onnxruntime-web": "^1.22.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.4.0",
