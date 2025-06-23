@@ -1,12 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 import os
-import shutil
-import cv2
-import logging
-import tensorflow as tf
 #from utils.detection import detect_face_and_eyes
 
 app = FastAPI()

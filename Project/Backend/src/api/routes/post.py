@@ -1,6 +1,5 @@
 from robyn import SubRouter
 import json
-import base64
 import threading
 import os
 from threading import Lock
