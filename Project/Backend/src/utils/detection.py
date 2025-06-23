@@ -1,12 +1,12 @@
 import cv2
 import dlib
 import os
-from crop import crop_eye_with_eyebrows
+from .crop import crop_eye_with_eyebrows
 
 face_detector = dlib.get_frontal_face_detector()
 # Load Dlib's face detector and shape predictor
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-shape_predictor_path = os.path.join(CURRENT_DIR, "..", "models", "shape_predictor_68_face_landmarks.dat")
+shape_predictor_path = os.path.join(CURRENT_DIR, "..", "assets", "shape_predictor_68_face_landmarks.dat")
 shape_predictor= dlib.shape_predictor(shape_predictor_path)
 
 

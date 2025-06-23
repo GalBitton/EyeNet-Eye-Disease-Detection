@@ -1,6 +1,6 @@
 import sys
 import os
-from src.constants.paths import UPLOAD_FOLDER, FINAL_VIDEOS_FOLDER
+from constants.paths import UPLOAD_FOLDER, FINAL_VIDEOS_FOLDER
 
 
 def assemble_video_from_chunks(session_id: str) -> dict:
