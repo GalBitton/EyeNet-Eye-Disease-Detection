@@ -9,6 +9,7 @@ const VideoRecorder = () => {
     const [countdown, setCountdown] = useState(5);
     const [results, setResults] = useState([]);
     const [analyzing, setAnalyzing] = useState(false);
+    const overlayCanvasRef = useRef(null);
 
     useEffect(() => {
         ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
@@ -17,7 +18,59 @@ const VideoRecorder = () => {
     const startCamera = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        await videoRef.current.play();
+
+        // Draw eye guidance boxes after video is ready
+        const canvas = overlayCanvasRef.current;
+        const ctx = canvas.getContext("2d");
+
+        // Adjust canvas size to match video
+        const resizeCanvas = () => {
+            canvas.width = videoRef.current.videoWidth;
+            canvas.height = videoRef.current.videoHeight;
+            drawEyeBoxes();
+        };
+
+        const drawEyeBoxes = () => {
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = "rgba(0, 255, 0, 0.9)";
+            ctx.lineWidth = 3;
+            ctx.font = "18px Arial";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+
+            // 👁️ Adjust box size: wider and taller
+            const boxW = width * 0.18; // wider box
+            const boxH = height * 0.22; // taller box
+            const boxY = height * 0.38; // Y-position to slightly raise the box
+
+            // 👁️ Adjust distance between eyes
+            const eyeGap = width * 0.08; // more spaced than previous, less than original
+
+            const centerX = width / 2;
+            const leftX = centerX - eyeGap / 2 - boxW;
+            const rightX = centerX + eyeGap / 2;
+
+            // Draw left eye box
+            ctx.strokeRect(leftX, boxY, boxW, boxH);
+            ctx.fillText("Left Eye", leftX + 10, boxY - 10);
+
+            // Draw right eye box
+            ctx.strokeRect(rightX, boxY, boxW, boxH);
+            ctx.fillText("Right Eye", rightX + 10, boxY - 10);
+        };
+
+        // Ensure it draws after metadata is loaded
+        if (videoRef.current.readyState >= 2) {
+            resizeCanvas();
+        } else {
+            videoRef.current.onloadedmetadata = resizeCanvas;
+        }
+
+        // Redraw on resize (mobile landscape ↔ portrait)
+        window.addEventListener("resize", resizeCanvas);
     };
 
     const startRecording = () => {
@@ -234,7 +287,18 @@ const VideoRecorder = () => {
 
     return (
         <div className="container py-10 text-center">
-            <video ref={videoRef} className="mx-auto bg-black rounded-lg" muted />
+            <div className="relative w-full max-w-[640px] mx-auto aspect-video">
+                <video
+                    ref={videoRef}
+                    className="absolute w-full h-full object-cover rounded-lg"
+                    muted
+                    playsInline
+                />
+                <canvas
+                    ref={overlayCanvasRef}
+                    className="absolute w-full h-full pointer-events-none"
+                />
+            </div>
             {!analyzing && (
                 <div className="mt-6 flex gap-4 justify-center flex-wrap">
                     {!recording ? (

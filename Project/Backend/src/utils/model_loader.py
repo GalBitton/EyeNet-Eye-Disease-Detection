@@ -1,6 +1,6 @@
 # utils/model_loader.py
 from tensorflow.keras.models import load_model
-from constants import paths
+from src.constants import paths
 
 
 print("[INFO] Loading EyeNet model...")

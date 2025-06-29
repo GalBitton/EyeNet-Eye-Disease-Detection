@@ -73,5 +73,6 @@ def process_image(image_dict):
     result["original_score"] = image_dict["score"]
     result["blur"] = image_dict["blur"]
     PREDICTIONS.append(result)
-
     os.remove(image_path)
+
+    return result
