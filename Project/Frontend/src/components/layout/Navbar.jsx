@@ -1,66 +1,84 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { ROUTES } from "../../constants/routes.jsx";
-import Logo from "../../assets/symbol1-removebg-preview.png";
-import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
-import DarkMode from "./DarkMode.jsx";
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Eye } from 'lucide-react';
 
-const NavLinks = [
-  { id: 1, name: "Home", link: ROUTES.HOME },
-  { id: 2, name: "Record", link: ROUTES.RECORD },
-  { id: 3, name: "Upload", link: ROUTES.UPLOAD },
-  { id: 4, name: "Contact", link: ROUTES.CONTACT },
-];
+const Navigation = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
 
-const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const navItems = [
+    { name: 'Home', path: '/' },
+    { name: 'Eye Scan', path: '/scan' },
+    { name: 'About', path: '/about' },
+    { name: 'Technology', path: '/technology' },
+    { name: 'Team', path: '/team' },
+    { name: 'Contact', path: '/contact' }
+  ];
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="relative z-[9999] text-black dark:text-white duration-300">
-      <div className="container flex justify-between items-center py-3">
-        {/* Logo */}
-        <Link to={ROUTES.HOME} className="flex items-center">
-          <img src={Logo} alt="EyeNet Logo" className="h-16" />
-          <p className="text-2xl font-bold ml-2">EyeNet</p>
-        </Link>
-
-        {/* Desktop Links */}
-        <nav className="hidden md:flex gap-8 items-center">
-          {NavLinks.map(({ id, name, link }) => (
-            <Link key={id} to={link} className="hover:text-primary font-semibold">
-              {name}
+      <nav className="bg-white shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2">
+              <Eye className="h-8 w-8 text-blue-600" />
+              <span className="text-2xl font-bold text-gray-900">EyeNet</span>
             </Link>
-          ))}
-          <DarkMode />
-        </nav>
 
-        {/* Mobile */}
-        <div className="flex items-center gap-4 md:hidden">
-          <DarkMode />
-          {menuOpen ? (
-            <HiMenuAlt1 size={30} onClick={toggleMenu} className="cursor-pointer" />
-          ) : (
-            <HiMenuAlt3 size={30} onClick={toggleMenu} className="cursor-pointer" />
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex space-x-8">
+              {navItems.map((item) => (
+                  <Link
+                      key={item.name}
+                      to={item.path}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          isActive(item.path)
+                              ? 'text-blue-600 bg-blue-50'
+                              : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                      }`}
+                  >
+                    {item.name}
+                  </Link>
+              ))}
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+              >
+                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isOpen && (
+              <div className="md:hidden">
+                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+                  {navItems.map((item) => (
+                      <Link
+                          key={item.name}
+                          to={item.path}
+                          onClick={() => setIsOpen(false)}
+                          className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                              isActive(item.path)
+                                  ? 'text-blue-600 bg-blue-50'
+                                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                          }`}
+                      >
+                        {item.name}
+                      </Link>
+                  ))}
+                </div>
+              </div>
           )}
         </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="absolute w-full bg-white dark:bg-black shadow-lg md:hidden">
-          <nav className="flex flex-col items-center gap-6 py-4">
-            {NavLinks.map(({ id, name, link }) => (
-              <Link key={id} to={link} onClick={toggleMenu} className="hover:text-primary">
-                {name}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
-    </header>
+      </nav>
   );
 };
 
-export default Navbar;
+export default Navigation;
