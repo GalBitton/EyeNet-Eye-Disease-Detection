@@ -9,6 +9,9 @@ export default {
       fontFamily:{
         parisienne: ["Parisienne", "cursive"],
       },
+      animation: {
+        'spin-slow': 'spin 2.5s linear infinite',
+      },
       colors:{
         primary: "#3498DB",
         secondary: "#E74C3C",

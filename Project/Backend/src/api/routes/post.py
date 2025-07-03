@@ -13,8 +13,8 @@ TEMP_DIR = "./temp_images"
 class_names= ["Cataract", "Healthy", "Conjunctivitis", "Stye"]
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-@router.post("/analyze")
-async def analyze(request):
+@router.post("/predict")
+async def predict(request):
     body = json.loads(request.body)
 
     image_storage = []
@@ -28,6 +28,9 @@ async def analyze(request):
             "blur": item["blur"],
             "box": item.get("box")
         })
+
+# print image_storage length
+    print(f"Number of images to process: {len(image_storage)}")
 
     results = []
     results_lock = Lock()

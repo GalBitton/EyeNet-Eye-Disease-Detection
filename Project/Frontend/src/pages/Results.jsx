@@ -1,74 +1,49 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { CheckCircle, AlertTriangle, Info, Camera, Download } from 'lucide-react';
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-import { saveAs } from "file-saver";
-import sampleImage from '../assets/lefteye_test.jpg'; // Example image, replace with actual image if needed
-
+import { CheckCircle, AlertTriangle, Camera, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { saveAs } from 'file-saver';
 
 const Results = () => {
     const location = useLocation();
-    const results = location.state?.results || null;
-    const [imageBase64, setImageBase64] = useState(null);
+    const results = location.state?.results;
+    const imageBase64 = location.state?.previewImageBase64;
 
-    React.useEffect(()=>{
-        const convertImageToBase64 = async () => {
-            const response = await fetch(sampleImage);
-            const blob = await response.blob();
+    if (!results) return <p className="text-center mt-10">No results.</p>;
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImageBase64(reader.result); // base64 string
-            };
-            reader.readAsDataURL(blob);
-        };
-        convertImageToBase64()
-    })
+    const parsedResults = JSON.parse(results.body);
+    const { left_eye, right_eye } = parsedResults;
 
-    // Mock results for demonstration
-    const mockResults = {
-        prediction: 'Normal',
-        confidence: 0.92,
-        conditions: {
-            normal: 0.92,
-            cataract: 0.05,
-            conjunctivitis: 0.02,
-            stye: 0.01,
-        },
-        recommendations: [
-            'Your eye appears healthy based on our AI analysis',
-            'Continue regular eye check-ups with your eye care professional',
-            'Maintain good eye hygiene and protect your eyes from UV rays',
-        ],
+    const hasLeft = left_eye.best_prediction !== 'Not Detected';
+    const hasRight = right_eye.best_prediction !== 'Not Detected';
+
+    if (!hasLeft && !hasRight) {
+        return <p className="text-center mt-10">No eyes found in the images, sorry.</p>;
+    }
+
+    const generateRecommendations = (prediction) => {
+        switch (prediction) {
+            case 'Healthy': return ['Your eye appears healthy.', 'Continue regular check-ups.', 'Maintain good hygiene.'];
+            case 'Cataract': return ['Signs of cataract detected.', 'Consult an ophthalmologist.', 'Protect your eyes from sunlight.'];
+            case 'Stye': return ['Possible stye detected.', 'Apply warm compresses.', 'Seek medical attention if needed.'];
+            case 'Conjunctivitis': return ['Symptoms of conjunctivitis detected.', 'Use prescribed drops.', 'Maintain hygiene.'];
+            default: return ['Unable to determine a clear diagnosis.'];
+        }
     };
 
-    const displayResults = results || mockResults;
-    const isHealthy = displayResults.prediction.toLowerCase() === 'normal';
+    const eyes = [];
+    if (hasLeft) eyes.push({ side: 'Left Eye', data: left_eye });
+    if (hasRight) eyes.push({ side: 'Right Eye', data: right_eye });
 
-    const getConditionColor = (condition, confidence) => {
-        if (condition === 'normal') return 'text-green-600';
-        if (confidence > 0.7) return 'text-red-600';
-        if (confidence > 0.3) return 'text-yellow-600';
-        return 'text-gray-600';
-    };
-
-    const getConditionBg = (condition, confidence) => {
-        if (condition === 'normal') return 'bg-green-50 border-green-200';
-        if (confidence > 0.7) return 'bg-red-50 border-red-200';
-        if (confidence > 0.3) return 'bg-yellow-50 border-yellow-200';
-        return 'bg-gray-50 border-gray-200';
-    };
-
-    const exportToPDF = (base64Image) => {
+    const exportToPDF = () => {
         const doc = new jsPDF();
         const margin = 20;
         let y = margin;
 
-        // Title
         doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
-        doc.setTextColor(40, 40, 40);
+        doc.setTextColor(40);
         doc.text("EyeNet AI Scan Report", 105, y, { align: "center" });
 
         y += 10;
@@ -80,75 +55,71 @@ const Results = () => {
         doc.setDrawColor(180);
         doc.line(margin, y, 210 - margin, y);
 
-        // 🖼️ Add Image (centered)
-        if (base64Image) {
+        if (imageBase64) {
             const imgWidth = 80;
             const imgHeight = 60;
             const imgX = (210 - imgWidth) / 2;
             y += 10;
-            doc.addImage(base64Image, 'JPEG', imgX, y, imgWidth, imgHeight);
+            doc.addImage(imageBase64, 'JPEG', imgX, y, imgWidth, imgHeight);
             y += imgHeight + 10;
         }
 
-        // Prediction
-        y += 15;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(33);
-        doc.text("Prediction Result", margin, y);
+        eyes.forEach(({ side, data }) => {
+            const prediction = data.best_prediction;
+            const confidence = data.average_scores[prediction] / 100;
+            const recommendations = generateRecommendations(prediction);
 
-        y += 8;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(14);
-        doc.setTextColor(0, 120, 50);
-        doc.text(
-            `Prediction: ${displayResults.prediction} (${(displayResults.confidence * 100).toFixed(1)}%)`,
-            margin,
-            y
-        );
+            y += 15;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(33);
+            doc.text(`${side} Prediction`, margin, y);
 
-        // Conditions Table
-        y += 15;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(33);
-        doc.text("Conditions Confidence", margin, y);
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(14);
+            doc.setTextColor(0, 120, 50);
+            doc.text(`Prediction: ${prediction} (${(confidence * 100).toFixed(1)}%)`, margin, y);
 
-        const conditionData = Object.entries(displayResults.conditions).map(([key, value]) => [
-            key === "normal" ? "Healthy Eye" : key.charAt(0).toUpperCase() + key.slice(1),
-            `${(value * 100).toFixed(2)}%`,
-        ]);
+            y += 15;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(33);
+            doc.text(`${side} Conditions Confidence`, margin, y);
 
-        const tableY = y + 5;
-        autoTable(doc, {
-            startY: tableY,
-            head: [["Condition", "Confidence"]],
-            body: conditionData,
-            theme: "striped",
-            headStyles: { fillColor: [41, 128, 185] },
-            styles: { fontSize: 12, halign: 'center' },
-            margin: { left: margin, right: margin },
+            const conditionData = Object.entries(data.average_scores).map(([key, value]) => [
+                key, `${value.toFixed(2)}%`
+            ]);
+
+            const tableY = y + 5;
+            autoTable(doc, {
+                startY: tableY,
+                head: [["Condition", "Confidence"]],
+                body: conditionData,
+                theme: "striped",
+                headStyles: { fillColor: [41, 128, 185] },
+                styles: { fontSize: 12, halign: 'center' },
+                margin: { left: margin, right: margin },
+            });
+
+            y = doc.lastAutoTable.finalY + 10;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(33);
+            doc.text(`${side} Recommendations`, margin, y);
+
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.setTextColor(50);
+            recommendations.forEach((rec, i) => {
+                doc.text(`• ${rec}`, margin + 2, y + i * 7);
+            });
+
+            y += recommendations.length * 7 + 5;
         });
 
-        const finalY = doc.lastAutoTable.finalY;
-
-        // Recommendations
-        y = finalY + 10;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(33);
-        doc.text("Recommendations", margin, y);
-
-        y += 8;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-        doc.setTextColor(50);
-        displayResults.recommendations.forEach((rec, i) => {
-            doc.text(`• ${rec}`, margin + 2, y + i * 7);
-        });
-
-        // Disclaimer
-        y += displayResults.recommendations.length * 7 + 10;
         doc.setFontSize(10);
         doc.setTextColor(130);
         doc.text(
@@ -167,105 +138,103 @@ const Results = () => {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">Analysis Results</h1>
-                    <p className="text-xl text-gray-600">
-                        Here are the results from your eye health scan
-                    </p>
+                    <p className="text-xl text-gray-600">Here are the results from your eye health scan</p>
                 </div>
 
-                {/* Main Result Card */}
                 <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div className="text-center mb-8">
-                        <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${
-                            isHealthy ? 'bg-green-100' : 'bg-yellow-100'
-                        }`}>
-                            {isHealthy ? (
-                                <CheckCircle className="h-10 w-10 text-green-600" />
-                            ) : (
-                                <AlertTriangle className="h-10 w-10 text-yellow-600" />
-                            )}
+                    {imageBase64 && (
+                        <div className="mb-8 flex justify-center">
+                            <img src={imageBase64} alt="Uploaded eye scan" className="w-64 h-auto rounded-lg shadow" />
                         </div>
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                            {displayResults.prediction}
-                        </h2>
-                        <p className="text-lg text-gray-600">
-                            Confidence: {Math.round(displayResults.confidence * 100)}%
-                        </p>
-                    </div>
+                    )}
 
-                    {/* Detailed Results */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        {Object.entries(displayResults.conditions).map(([condition, confidence]) => (
-                            <div
-                                key={condition}
-                                className={`p-4 rounded-lg border-2 ${getConditionBg(condition, confidence)}`}
-                            >
-                                <div className="flex justify-between items-center">
-                                    <span className="font-semibold capitalize text-gray-900">
-                                        {condition === 'normal' ? 'Healthy Eye' : condition}
-                                    </span>
-                                    <span className={`font-bold ${getConditionColor(condition, confidence)}`}>
-                                        {Math.round(confidence * 100)}%
-                                    </span>
+                    {eyes.map(({ side, data }) => {
+                        const prediction = data.best_prediction;
+                        const confidence = data.average_scores[prediction] / 100;
+                        const recommendations = generateRecommendations(prediction);
+
+                        return (
+                            <div key={side} className="mb-6">
+                                <div className="text-center mb-4">
+                                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${
+                                        prediction === 'Healthy' ? 'bg-green-100' : 'bg-yellow-100'
+                                    }`}>
+                                        {prediction === 'Healthy' ? (
+                                            <CheckCircle className="h-10 w-10 text-green-600" />
+                                        ) : (
+                                            <AlertTriangle className="h-10 w-10 text-yellow-600" />
+                                        )}
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                                        {side}: {prediction}
+                                    </h2>
+                                    <p className="text-lg text-gray-600">
+                                        Confidence: {(confidence * 100).toFixed(1)}%
+                                    </p>
                                 </div>
-                                <div className="mt-2 bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className={`h-2 rounded-full ${
-                                            condition === 'normal' ? 'bg-green-500' :
-                                                confidence > 0.7 ? 'bg-red-500' :
-                                                    confidence > 0.3 ? 'bg-yellow-500' : 'bg-gray-400'
-                                        }`}
-                                        style={{ width: `${confidence * 100}%` }}
-                                    ></div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    {Object.entries(data.average_scores).map(([condition, val]) => (
+                                        <div key={condition} className="p-4 rounded-lg border-2 bg-gray-50">
+                                            <div className="flex justify-between">
+                                                <span className="font-semibold capitalize text-gray-900">{condition}</span>
+                                                <span className="font-bold">{val.toFixed(1)}%</span>
+                                            </div>
+                                            <div className="mt-2 bg-gray-200 rounded-full h-2">
+                                                <div
+                                                    className="h-2 rounded-full bg-blue-600"
+                                                    style={{ width: `${val.toFixed(1)}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                    <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+                                        Recommendations
+                                    </h3>
+                                    <ul className="text-blue-800 space-y-2">
+                                        {recommendations.map((rec, i) => (
+                                            <li key={i} className="flex items-start">
+                                                <span className="mr-2">•</span>
+                                                <span>{rec}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
-                        ))}
+                        );
+                    })}
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                        <Link
+                            to="/scan"
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center"
+                        >
+                            <Camera className="mr-2 h-5 w-5" />
+                            Take Another Scan
+                        </Link>
+                        <button
+                            onClick={exportToPDF}
+                            className="border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
+                        >
+                            <Download className="mr-2 h-5 w-5" />
+                            Download Results
+                        </button>
                     </div>
 
-                    {/* Recommendations */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
-                            <Info className="h-5 w-5 mr-2" />
-                            Recommendations
-                        </h3>
-                        <ul className="text-blue-800 space-y-2">
-                            {displayResults.recommendations.map((rec, index) => (
-                                <li key={index} className="flex items-start">
-                                    <span className="mr-2">•</span>
-                                    <span>{rec}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                    <Link
-                        to="/scan"
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center"
-                    >
-                        <Camera className="mr-2 h-5 w-5" />
-                        Take Another Scan
-                    </Link>
-                    <button className="border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
-                            onClick={() => exportToPDF(imageBase64)}>
-                        <Download className="mr-2 h-5 w-5" />
-                        Download Results
-                    </button>
-                </div>
-
-                {/* Medical Disclaimer */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                    <div className="flex items-start space-x-3">
-                        <AlertTriangle className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Important Notice</h3>
-                            <p className="text-yellow-800">
-                                These results are generated by AI and are for informational purposes only.
-                                They should not replace professional medical advice, diagnosis, or treatment.
-                                Please consult with a qualified eye care professional for proper medical evaluation,
-                                especially if you have concerns about your eye health.
-                            </p>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-6">
+                        <div className="flex items-start space-x-3">
+                            <AlertTriangle className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-1" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-yellow-900 mb-2">Important Notice</h3>
+                                <p className="text-yellow-800">
+                                    These results are generated by AI and are for informational purposes only.
+                                    They should not replace professional medical advice, diagnosis, or treatment.
+                                    Please consult with a qualified eye care professional for proper medical evaluation.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
