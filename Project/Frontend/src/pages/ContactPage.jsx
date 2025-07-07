@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from 'lucide-react';
+import {COMMONTEXT} from "../constants/constants.jsx";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -52,8 +53,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">CataractProject3@gmail.com</p>
-                    <p className="text-gray-600">EyeNetSupport@gmail.com</p>
+                    <p className="text-gray-600">{COMMONTEXT.EMAIL}</p>
+                    <p className="text-gray-600">{COMMONTEXT.SUPPORT_EMAIL}</p>
                   </div>
                 </div>
 
@@ -63,8 +64,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Phone</h3>
-                    <p className="text-gray-600">+1 (234) 567-8900</p>
-                    <p className="text-gray-600">+1 (987) 654-3210</p>
+                    <p className="text-gray-600">{COMMONTEXT.PHONE}</p>
+                    <p className="text-gray-600">{COMMONTEXT.SECOND_PHONE}</p>
                   </div>
                 </div>
 
@@ -75,8 +76,7 @@ const Contact = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Address</h3>
                     <p className="text-gray-600">
-                      Braude College of Enginnering<br />
-                      Karmiel<br />
+                      {COMMONTEXT.ADDRESS}
                     </p>
                   </div>
                 </div>
@@ -88,9 +88,9 @@ const Contact = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Support Hours</h3>
                     <p className="text-gray-600">
-                      Sunday - Thursday: 8:00 AM - 6:00 PM<br />
-                      Friday: 08:00 AM - 2:00 PM<br />
-                      Saturday: Closed
+                      Sunday - Thursday: {COMMONTEXT.SUPPORT_HOURS.WEEK}<br />
+                      Friday: {COMMONTEXT.SUPPORT_HOURS.FRIDAY}<br />
+                      Saturday: {COMMONTEXT.SUPPORT_HOURS.SATURDAY}
                     </p>
                   </div>
                 </div>

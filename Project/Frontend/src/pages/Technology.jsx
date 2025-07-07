@@ -1,5 +1,6 @@
 import React from 'react';
 import { Brain, Database, Zap, Shield, Code, Server } from 'lucide-react';
+import {TECHNOLOGY} from "../constants/constants.jsx";
 
 const Technology = () => {
     return (
@@ -39,7 +40,7 @@ const Technology = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">DenseNet121 Base Model</h3>
-                                        <p className="text-gray-600">Dense connections between layers for optimal feature reuse and gradient flow</p>
+                                        <p className="text-gray-600">{TECHNOLOGY.ARCHITECTURE.DENSENET}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start space-x-3">
@@ -48,7 +49,7 @@ const Technology = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">Attention Mechanisms</h3>
-                                        <p className="text-gray-600">Enhanced focus on relevant image regions for improved accuracy</p>
+                                        <p className="text-gray-600">{TECHNOLOGY.ARCHITECTURE.ATTENTION}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start space-x-3">
@@ -57,7 +58,7 @@ const Technology = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">Data Augmentation</h3>
-                                        <p className="text-gray-600">Robust training with varied lighting conditions and image transformations</p>
+                                        <p className="text-gray-600">{TECHNOLOGY.ARCHITECTURE.AUGMENTATION}</p>
                                     </div>
                                 </div>
                             </div>
@@ -108,11 +109,10 @@ const Technology = () => {
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-4">Frontend</h3>
                             <ul className="space-y-2 text-gray-600">
-                                <li>• React.js for interactive UI</li>
-                                <li>• TypeScript for type safety</li>
-                                <li>• Tailwind CSS for styling</li>
-                                <li>• Responsive design principles</li>
-                                <li>• Modern web standards</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.FRONTEND[0]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.FRONTEND[1]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.FRONTEND[2]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.FRONTEND[3]}</li>
                             </ul>
                         </div>
 
@@ -123,11 +123,11 @@ const Technology = () => {
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-4">Backend</h3>
                             <ul className="space-y-2 text-gray-600">
-                                <li>• FastAPI for high-performance APIs</li>
-                                <li>• Python ecosystem integration</li>
-                                <li>• Async request handling</li>
-                                <li>• Automatic API documentation</li>
-                                <li>• RESTful architecture</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.BACKEND[0]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.BACKEND[1]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.BACKEND[2]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.BACKEND[3]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.BACKEND[4]}</li>
                             </ul>
                         </div>
 
@@ -138,11 +138,11 @@ const Technology = () => {
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-4">AI/ML</h3>
                             <ul className="space-y-2 text-gray-600">
-                                <li>• PyTorch deep learning framework</li>
-                                <li>• OpenCV for image processing</li>
-                                <li>• NumPy for numerical computing</li>
-                                <li>• Scikit-learn for ML utilities</li>
-                                <li>• CUDA GPU acceleration</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.AIML[0]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.AIML[1]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.AIML[2]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.AIML[3]}</li>
+                                <li>• {TECHNOLOGY.TECH_STACK.AIML[4]}</li>
                             </ul>
                         </div>
                     </div>
@@ -194,13 +194,6 @@ const Technology = () => {
                                     <p className="text-yellow-800">
                                         Advanced augmentation including rotation, brightness adjustment, contrast enhancement,
                                         and noise injection to improve model robustness.
-                                    </p>
-                                </div>
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <h4 className="font-semibold text-blue-900 mb-2">Quality Assurance</h4>
-                                    <p className="text-blue-800">
-                                        All training images are medically validated and annotated by healthcare professionals
-                                        to ensure accuracy and reliability.
                                     </p>
                                 </div>
                             </div>

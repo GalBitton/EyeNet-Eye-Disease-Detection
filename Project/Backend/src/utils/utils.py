@@ -15,7 +15,7 @@ os.makedirs(SAVED_EYES_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 PREDICTIONS = []
-class_names= ["Cataract", "Healthy", "Conjunctivitis", "Stye"]
+class_names= ["Cataract", "Conjunctivitis", "Healthy", "Stye"]
 
 def base64_to_image(base64_string):
     if "," in base64_string:
@@ -55,10 +55,26 @@ def predict_from_eyes(left_eye, right_eye):
 
     return results
 
+def predict_from_image(image_b64):
+    # decode base64
+    image_data = base64.b64decode(image_b64.split(",")[1])
+    nparr = np.frombuffer(image_data, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    if image is None:
+        return {"error": "Image could not be read"}
+
+    processed_image = preprocess_eye(image)
+    input_tensor = np.expand_dims(processed_image, axis=0)
+    prediction = model.predict(input_tensor)[0]
+    return {class_names[i]: float(prediction[i] * 100) for i in range(len(class_names))}
 
 def process_image(image_dict):
     image_path = base64_to_image(image_dict["image"])
     left_eye, right_eye = detect_face_and_eyes(image_path)
+
+    if left_eye is None and right_eye is None:
+        return {"error": "No face detected in the image"}
 
     # שמירת העיניים אם זוהו
     if left_eye is not None:
@@ -73,6 +89,6 @@ def process_image(image_dict):
     result["original_score"] = image_dict["score"]
     result["blur"] = image_dict["blur"]
     PREDICTIONS.append(result)
-    os.remove(image_path)
+    # os.remove(image_path)
 
     return result

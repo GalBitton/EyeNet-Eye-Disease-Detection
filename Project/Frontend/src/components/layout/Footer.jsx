@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {COMMONTEXT} from "../../constants/constants.jsx";
 
 const Footer = () => {
   return (
@@ -36,15 +37,15 @@ const Footer = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 text-blue-400" />
-                  <span className="text-gray-300">CataractProject3@gmail.com</span>
+                  <span className="text-gray-300">{COMMONTEXT.EMAIL}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4 text-blue-400" />
-                  <span className="text-gray-300">+1 (234) 567-8900</span>
+                  <span className="text-gray-300">{COMMONTEXT.PHONE}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4 text-blue-400" />
-                  <span className="text-gray-300">Braude College of Engineering</span>
+                  <span className="text-gray-300">{COMMONTEXT.ADDRESS}</span>
                 </div>
               </div>
             </div>
@@ -52,7 +53,7 @@ const Footer = () => {
 
           <div className="border-t border-gray-700 mt-8 pt-8 text-center">
             <p className="text-gray-300">
-              © 2024 EyeNet. All rights reserved. This application is for informational purposes only and should not replace professional medical advice.
+              © 2025 EyeNet. All rights reserved. This application is for informational purposes only and should not replace professional medical advice.
             </p>
           </div>
         </div>

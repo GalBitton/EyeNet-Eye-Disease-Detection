@@ -1,27 +1,27 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import EyeScan from "../pages/EyeScan.jsx";
-import Results from "../pages/Results.jsx";
+import Results from "../pages/results/Results.jsx";
 import About from "../pages/About.jsx";
 import Technology from "../pages/Technology.jsx";
 import Team from "../pages/Team.jsx";
 import HomePage from "../pages/HomePage.jsx";
 import ContactPage from "../pages/ContactPage.jsx";
 import NotFound from "../pages/NotFound.jsx";
+import {ROUTES} from "../constants/routes.jsx";
 
 
-const AppRouter = ({ togglePlay, results, setResults }) => {
+const AppRouter = () => {
   return (
     <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/scan" element={<EyeScan />} />
-        <Route path="/results" element={<Results />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/technology" element={<Technology />} />
-        <Route path="/team" element={<Team />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="*" element={<NotFound />} />
-      {/* אפשר להוסיף בעתיד גם דף 404 */}
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.EYESCAN} element={<EyeScan />} />
+        <Route path={ROUTES.RESULTS} element={<Results />} />
+        <Route path={ROUTES.ABOUT} element={<About />} />
+        <Route path={ROUTES.TECHNOLOGY} element={<Technology />} />
+        <Route path={ROUTES.TEAM} element={<Team />} />
+        <Route path={ROUTES.CONTACT} element={<ContactPage />} />
+        <Route path={ROUTES.NOT_FOUND} element={<NotFound />} />
     </Routes>
   );
 };

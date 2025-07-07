@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield, Zap, Users } from 'lucide-react';
+import {HOMECONTENT} from "../../constants/constants.jsx";
 
 const FeaturesSection = ()=> {
   return (
@@ -7,11 +8,10 @@ const FeaturesSection = ()=> {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose EyeNet?
+              {HOMECONTENT.FEATURES_HEADER}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our advanced AI technology makes eye health screening accessible, accurate, and convenient for
-              everyone
+              {HOMECONTENT.FEATURES_DESC}
             </p>
           </div>
 
@@ -20,11 +20,9 @@ const FeaturesSection = ()=> {
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
                 <Zap className="h-8 w-8 text-blue-600"/>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Instant Results</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">{HOMECONTENT.FEATURES.INSTANT_RESULTS.TITLE}</h3>
               <p className="text-gray-600">
-                Get accurate eye condition detection results in seconds using our advanced DenseNet121 model
-                with
-                attention mechanisms.
+                {HOMECONTENT.FEATURES.INSTANT_RESULTS.DESCRIPTION}
               </p>
             </div>
 
@@ -32,11 +30,9 @@ const FeaturesSection = ()=> {
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
                 <Shield className="h-8 w-8 text-green-600"/>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">91% Accuracy</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">{HOMECONTENT.FEATURES.HIGH_ACCURACY.TITLE}</h3>
               <p className="text-gray-600">
-                Trained on over 13,000 images per condition, our AI model delivers reliable detection for
-                cataracts,
-                conjunctivitis, and styes.
+                {HOMECONTENT.FEATURES.HIGH_ACCURACY.DESCRIPTION}
               </p>
             </div>
 
@@ -44,10 +40,9 @@ const FeaturesSection = ()=> {
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
                 <Users className="h-8 w-8 text-purple-600"/>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">User-Friendly</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">{HOMECONTENT.FEATURES.USER_FRIENDLY.TITLE}</h3>
               <p className="text-gray-600">
-                Designed for all ages from 10 to 85+. Simple interface that works perfectly on both desktop and
-                mobile devices.
+                {HOMECONTENT.FEATURES.USER_FRIENDLY.DESCRIPTION}
               </p>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Target, Zap, Users } from 'lucide-react';
-import eye_care_technology from '../assets/eye-care-technology.png'; // Adjust the path as necessary
+import eye_care_technology from '../assets/eye-care-technology.png';
+import {ABOUTCONTENT} from "../constants/constants.jsx";
 
 const About = () => {
     return (
@@ -30,20 +31,15 @@ const About = () => {
                                 Our Mission
                             </h2>
                             <p className="text-lg text-gray-600 mb-6">
-                                The sense of sight is fundamental to our daily lives, yet millions of people worldwide
-                                lack access to timely and affordable eye care. Traditional diagnosis methods are often
-                                time-consuming, expensive, and require specialized medical equipment.
+                                {ABOUTCONTENT.OUR_MISSION[0]}
                             </p>
                             <p className="text-lg text-gray-600 mb-6">
-                                EyeNet bridges this gap by providing an accessible, AI-powered solution that can detect
-                                external eye conditions with remarkable accuracy. Our goal is to democratize eye health
-                                screening and enable early detection of conditions like cataracts, conjunctivitis, and styes.
+                                {ABOUTCONTENT.OUR_MISSION[1]}
                             </p>
                             <div className="bg-blue-50 p-6 rounded-lg">
                                 <h3 className="font-semibold text-blue-900 mb-2">Early Detection Saves Sight</h3>
                                 <p className="text-blue-800">
-                                    Many eye conditions can be effectively treated when caught early. Our AI technology
-                                    helps identify potential issues before they significantly impact your vision and daily functioning.
+                                    {ABOUTCONTENT.DESC}
                                 </p>
                             </div>
                         </div>
@@ -77,19 +73,19 @@ const About = () => {
                             <ul className="space-y-4 text-red-800">
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">❌</span>
-                                    <span>Limited access to specialized eye care equipment</span>
+                                    <span>{ABOUTCONTENT.CHALLENGES[0]}</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">❌</span>
-                                    <span>Time-consuming and expensive diagnostic processes</span>
+                                    <span>{ABOUTCONTENT.CHALLENGES[1]}</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">❌</span>
-                                    <span>Geographic barriers to professional eye care</span>
+                                    <span>{ABOUTCONTENT.CHALLENGES[2]}</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">❌</span>
-                                    <span>Delayed detection leading to vision complications</span>
+                                    <span>{ABOUTCONTENT.CHALLENGES[3]}</span>
                                 </li>
                             </ul>
                         </div>
@@ -100,19 +96,19 @@ const About = () => {
                             <ul className="space-y-4 text-green-800">
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">✅</span>
-                                    <span>Accessible AI-powered screening from any device</span>
+                                    <span>{ABOUTCONTENT.SOLUTIONS[0]}</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">✅</span>
-                                    <span>Instant results with 91% accuracy rate</span>
+                                    <span>{ABOUTCONTENT.SOLUTIONS[1]}</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">✅</span>
-                                    <span>Available 24/7 from the comfort of your home</span>
+                                    <span>{ABOUTCONTENT.SOLUTIONS[2]}</span>
                                 </li>
                                 <li className="flex items-start">
                                     <span className="mr-3 mt-1">✅</span>
-                                    <span>Early detection enabling timely treatment</span>
+                                    <span>{ABOUTCONTENT.SOLUTIONS[3]}</span>
                                 </li>
                             </ul>
                         </div>
@@ -139,8 +135,7 @@ const About = () => {
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-4">Precision AI</h3>
                             <p className="text-gray-600">
-                                Our DenseNet121 model with attention mechanisms is trained on over 13,000 images
-                                per condition, ensuring high accuracy and reliability.
+                                {ABOUTCONTENT.SPECIAL_FEATURES[0]}
                             </p>
                         </div>
 
@@ -150,8 +145,7 @@ const About = () => {
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-4">Lightning Fast</h3>
                             <p className="text-gray-600">
-                                Get comprehensive eye health analysis in seconds, not hours.
-                                Our optimized system delivers results almost instantly.
+                                {ABOUTCONTENT.SPECIAL_FEATURES[1]}
                             </p>
                         </div>
 
@@ -161,8 +155,7 @@ const About = () => {
                             </div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-4">Universal Design</h3>
                             <p className="text-gray-600">
-                                Designed for users aged 10 to 80+, with intuitive interfaces that work
-                                seamlessly across all devices and platforms.
+                                {ABOUTCONTENT.SPECIAL_FEATURES[2]}
                             </p>
                         </div>
                     </div>
@@ -176,21 +169,20 @@ const About = () => {
                         Our Impact Goal
                     </h2>
                     <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-                        We envision a world where advanced eye health screening is accessible to everyone,
-                        regardless of location, economic status, or access to specialized healthcare facilities.
+                        {ABOUTCONTENT.IMPACT.GOAL}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-white">
                         <div>
-                            <div className="text-4xl font-bold mb-2">91%</div>
-                            <div className="text-blue-100">Detection Accuracy</div>
+                            <div className="text-4xl font-bold mb-2">{ABOUTCONTENT.IMPACT.ACCURACY.HEADER}</div>
+                            <div className="text-blue-100">{ABOUTCONTENT.IMPACT.ACCURACY.DESC}</div>
                         </div>
                         <div>
-                            <div className="text-4xl font-bold mb-2">13K+</div>
-                            <div className="text-blue-100">Training Images per Condition</div>
+                            <div className="text-4xl font-bold mb-2">{ABOUTCONTENT.IMPACT.DATASET.HEADER}</div>
+                            <div className="text-blue-100">{ABOUTCONTENT.IMPACT.DATASET.DESC}</div>
                         </div>
                         <div>
-                            <div className="text-4xl font-bold mb-2">24/7</div>
-                            <div className="text-blue-100">Available Worldwide</div>
+                            <div className="text-4xl font-bold mb-2">{ABOUTCONTENT.IMPACT.AVAILABLE.HEADER}</div>
+                            <div className="text-blue-100">{ABOUTCONTENT.IMPACT.AVAILABLE.DESC}</div>
                         </div>
                     </div>
                 </div>

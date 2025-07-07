@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Camera, ArrowRight, Shield } from 'lucide-react';
+import {HOMECONTENT} from "../../constants/constants.jsx";
 
 import image from '../../assets/symbol1-removebg-preview.png';
 
@@ -10,12 +11,11 @@ const HeroSection = () => (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Early Eye Health Detection
-              <br></br> <span className="text-blue-600"> AI-Driven</span>
+              {HOMECONTENT.HEADER}
+              <br></br> <span className="text-blue-600"> {HOMECONTENT.SUBHEADER}</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              EyeNet uses cutting-edge AI to detect cataracts, conjunctivitis, styes and healthy eyes with 98% accuracy.
-              Get instant, reliable eye health insights from the comfort of your home.
+              {HOMECONTENT.HERO_TEXT}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -23,13 +23,13 @@ const HeroSection = () => (
                   className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center"
               >
                 <Camera className="mr-2 h-5 w-5"/>
-                Start Eye Scan
+                {HOMECONTENT.START_SCAN}
               </Link>
               <Link
                   to="/about"
                   className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center"
               >
-                Learn More
+                {HOMECONTENT.LEARN_MORE}
                 <ArrowRight className="ml-2 h-5 w-5"/>
               </Link>
             </div>

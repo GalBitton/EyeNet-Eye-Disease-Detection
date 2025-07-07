@@ -1,33 +1,25 @@
 import React from 'react';
 import { Users, Award, BookOpen, Mail } from 'lucide-react';
-
+import {COMMONTEXT, TEAM} from '../constants/constants.jsx';
 const Team = () => {
-    const teamMembers = [
-        {
-            name: "Gal Bitton",
-            role: "Backend Developer at Qlik",
-            expertise: "Backend Development & Node.js | Python",
-            image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-            bio: "Software engineer student in his final year at Braude College of Engineering. Passionate about backend development, particularly in Node.js and Python.",
-            email: "galbitton22@gmail.com"
-        },
-        {
-            name: "Ron Bendel",
-            role: "Software Engineer at Rafael",
-            expertise: "Backend Development & Python | AI/ML",
-            image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-            bio: "Software engineer student in his final year at Braude College of Engineering. Passionate about backend development, particularly in Node.js and Python.",
-            email: "ronbendel12345@gmail.com"
-        },
-        {
-            name: "Ron Bendel",
-            role: "Software Engineer at Rafael",
-            expertise: "Backend Development & Python | AI/ML",
-            image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-            bio: "Software engineer student in his final year at Braude College of Engineering. Passionate about backend development, particularly in Node.js and Python.",
-            email: "ronbendel12345@gmail.com"
-        },
-    ];
+    // const teamMembers = [
+    //     {
+    //         name: "Gal Bitton",
+    //         role: "Backend Developer at Qlik",
+    //         expertise: "Backend Development & Node.js | Python",
+    //         image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    //         bio: "Software engineer student in his final year at Braude College of Engineering. Passionate about backend development, particularly in Node.js and Python.",
+    //         email: "galbitton22@gmail.com"
+    //     },
+    //     {
+    //         name: "Ron Bendel",
+    //         role: "Software Engineer at Rafael",
+    //         expertise: "Backend Development & Python | AI/ML",
+    //         image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    //         bio: "Software engineer student in his final year at Braude College of Engineering. Passionate about backend development, particularly in Node.js and Python.",
+    //         email: "ronbendel12345@gmail.com"
+    //     },
+    // ];
 
     return (
         <div className="min-h-screen bg-white">
@@ -96,22 +88,22 @@ const Team = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center mx-auto max-w-5xl">
-                        {teamMembers.map((member, index) => (
+                        {TEAM.MEMBER.map((member, index) => (
                             <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                                 <div className="aspect-square overflow-hidden">
                                     <img
-                                        src={member.image}
-                                        alt={member.name}
+                                        src={member.IMAGE}
+                                        alt={member.NAME}
                                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                                     />
                                 </div>
                                 <div className="p-6">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{member.name}</h3>
-                                    <p className="text-blue-600 font-semibold mb-2">{member.role}</p>
-                                    <p className="text-sm text-green-600 mb-4">{member.expertise}</p>
-                                    <p className="text-gray-600 text-sm mb-4 line-clamp-5">{member.bio}</p>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{member.NAME}</h3>
+                                    <p className="text-blue-600 font-semibold mb-2">{member.ROLE}</p>
+                                    <p className="text-sm text-green-600 mb-4">{member.EXPERTISE}</p>
+                                    <p className="text-gray-600 text-sm mb-4 line-clamp-5">{member.BIO}</p>
                                     <a
-                                        href={`mailto:${member.email}`}
+                                        href={`mailto:${member.EMAIL}`}
                                         className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
                                     >
                                         <Mail className="h-4 w-4 mr-2" />
@@ -188,7 +180,7 @@ const Team = () => {
                         className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center"
                     >
                         <Mail className="mr-2 h-5 w-5" />
-                        CataractProject3@gmail.com
+                        {COMMONTEXT.EMAIL}
                     </a>
                 </div>
             </section>

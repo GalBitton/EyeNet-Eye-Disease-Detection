@@ -5,6 +5,7 @@ import os
 from threading import Lock
 from src.utils.utils import process_image  # ודא שזה מחזיר תוצאה
 
+from Project.Backend.src.utils.utils import predict_from_image
 
 router = SubRouter(__file__)
 
@@ -65,6 +66,15 @@ async def predict(request):
                 right_eye_sums[cls] += r["right_eye"][cls]
             right_eye_counts += 1
 
+    if left_eye_counts == 0 and right_eye_counts == 0:
+        return {
+            "status_code": 400,
+            "body": json.dumps({"error": "No valid eye images detected"}),
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+
     # Calculate averages
     def average_scores(sums, count):
         return {cls: round(sums[cls] / count, 2) if count > 0 else 0.0 for cls in class_names}
@@ -95,5 +105,19 @@ async def predict(request):
         }
     }
 
+@router.post("/upload")
+async def upload(request):
+    body = json.loads(request.body)
+    result = predict_from_image(body["image"])
+    final_results = {
+        "eye_image": result
+    }
 
+    return {
+        "status_code": 200,
+        "body": json.dumps(final_results),
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
 

@@ -4,7 +4,7 @@ import VideoTutorial from '../components/home/VideoTutorial';
 import FeaturesSection from '../components/home/Features';
 import CTASection from '../components/home/CTASection';
 
-const Home = () => {
+const HomePage = () => {
     return (
         <div className="min-h-screen">
             <HeroSection />
@@ -15,4 +15,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default HomePage;

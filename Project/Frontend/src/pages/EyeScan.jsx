@@ -3,6 +3,7 @@ import { Camera, Upload, Eye, Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import * as ort from "onnxruntime-web";
 import axios from "axios";
+import {EYESCANCONTENT} from "../constants/constants.jsx";
 
 
 const EyeScan = () => {
@@ -110,110 +111,6 @@ const EyeScan = () => {
         return floatArray;
     };
 
-
-    const handlePrediction = async (imageList) => {
-        try {
-            setIsLoading(true);
-
-            const processed = await Promise.all(imageList.map(async (base64Img) => {
-                const img = new Image();
-                img.src = base64Img;
-                await new Promise((res) => (img.onload = res));
-
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                canvas.width = 640;
-                canvas.height = 640;
-                ctx.drawImage(img, 0, 0, 640, 640);
-
-                const blur = detectBlurWithLaplacian(canvas);
-                if (blur < 100) return null;
-
-                const { score, box } = await runYoloOnImage(canvas);
-                const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-                const reader = new FileReader();
-
-                const base64 = await new Promise((res) => {
-                    reader.onloadend = () => res(reader.result);
-                    reader.readAsDataURL(blob);
-                });
-
-                return { image: base64, score, box, blur };
-            }));
-
-            const validImages = processed.filter(Boolean);
-            const topImages = validImages.sort((a, b) => b.score - a.score).slice(0, Math.max(5, Math.ceil(validImages.length * 0.3)));
-
-            const res = await axios.post("http://localhost:8000/predict", topImages, {
-                headers: { "Content-Type": "application/json" }
-            });
-
-            navigate("/results", {
-                state: {
-                    results: res.data,
-                    previewImageBase64: topImages?.[0]?.image || ""
-                }
-            });
-        } catch (err) {
-            console.error("Prediction failed:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const formatResult = (result) => {
-        const left = result.left_eye;
-        const right = result.right_eye;
-
-        return {
-            prediction: left.best_prediction === right.best_prediction ? left.best_prediction : 'Mixed',
-            confidence: Math.max(
-                Math.max(...Object.values(left.average_scores)),
-                Math.max(...Object.values(right.average_scores))
-            ) / 100,
-            conditions: {
-                cataract: ((left.average_scores.Cataract + right.average_scores.Cataract) / 200),
-                healthy: ((left.average_scores.Healthy + right.average_scores.Healthy) / 200),
-                conjunctivitis: ((left.average_scores.Conjunctivitis + right.average_scores.Conjunctivitis) / 200),
-                stye: ((left.average_scores.Stye + right.average_scores.Stye) / 200),
-            },
-            recommendations: generateRecommendations(left.best_prediction, right.best_prediction),
-        };
-    };
-
-    const generateRecommendations = (left, right) => {
-        const final = left === right ? left : 'Mixed';
-        switch (final) {
-            case "Healthy":
-                return [
-                    'Your eye appears healthy based on our AI analysis.',
-                    'Continue regular eye check-ups with your eye care professional.',
-                    'Maintain good eye hygiene and protect your eyes from UV rays.',
-                ];
-            case "Cataract":
-                return [
-                    'Signs of cataract detected. Consult an ophthalmologist.',
-                    'Avoid driving at night and protect your eyes from sunlight.',
-                    'Schedule a clinical eye exam for confirmation.',
-                ];
-            case "Stye":
-                return [
-                    'Possible stye detected. Apply warm compresses and avoid squeezing it.',
-                    'Clean your eyelids regularly with a mild cleanser.',
-                    'Seek medical attention if swelling or pain increases.',
-                ];
-            case "Conjunctivitis":
-                return [
-                    'Symptoms of conjunctivitis detected. Avoid touching or rubbing your eyes.',
-                    'Use prescribed drops and maintain good hygiene.',
-                    'See a doctor if redness or discharge worsens.',
-                ];
-            default:
-                return ['Unable to determine a clear diagnosis. Please retry or consult a professional.'];
-        }
-    };
-
-
     const resetCameraState = () => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
@@ -224,24 +121,25 @@ const EyeScan = () => {
         setRecording(false);
     };
 
-    const drawEyeBoxes = (ctx, width, height) => {
-        ctx.clearRect(0, 0, width, height);
-        ctx.strokeStyle = "rgba(0, 255, 0, 0.9)";
-        ctx.lineWidth = 3;
-        ctx.font = "18px Arial";
-        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-        const boxW = width * 0.18;
-        const boxH = height * 0.22;
-        const boxY = height * 0.38;
-        const eyeGap = width * 0.08;
-        const centerX = width / 2;
-        const leftX = centerX - eyeGap / 2 - boxW;
-        const rightX = centerX + eyeGap / 2;
-        ctx.strokeRect(leftX, boxY, boxW, boxH);
-        ctx.fillText("Left Eye", leftX + 10, boxY - 10);
-        ctx.strokeRect(rightX, boxY, boxW, boxH);
-        ctx.fillText("Right Eye", rightX + 10, boxY - 10);
-    };
+const drawFaceBox = (ctx, width, height) => {
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.strokeStyle = "rgba(0, 255, 0, 0.9)";
+    ctx.lineWidth = 3;
+    ctx.font = "18px Arial";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+
+    // Define box dimensions
+    const boxW = width * 0.4;   // e.g., 40% of canvas width
+    const boxH = height * 0.5;  // e.g., 50% of canvas height
+
+    // Center the box in the canvas
+    const boxX = (width - boxW) / 2;
+    const boxY = (height - boxH) / 2;
+
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
+    ctx.fillText("Face", boxX + 10, boxY - 10);
+};
 
     const startCamera = async () => {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -256,7 +154,6 @@ const EyeScan = () => {
             console.error("Canvas is not ready yet.");
             return;
         }
-        const ctx = canvas.getContext("2d");
 
         resizeCanvasRef.current = () => {
             if (!videoRef.current || !overlayCanvasRef.current) return;
@@ -264,7 +161,7 @@ const EyeScan = () => {
             const ctx = canvas.getContext("2d");
             canvas.width = videoRef.current.videoWidth || 640;
             canvas.height = videoRef.current.videoHeight || 480;
-            drawEyeBoxes(ctx, canvas.width, canvas.height);
+            drawFaceBox(ctx, canvas.width, canvas.height);
         };
 
         if (videoRef.current.readyState >= 2) resizeCanvasRef.current();
@@ -286,13 +183,52 @@ const EyeScan = () => {
     };
 
     const analyzeFile = async (file) => {
+        console.log(`COMMENT: analyzeFile called with file: ${file.name}`);
         const reader = new FileReader();
         reader.onloadend = () => {
             const base64 = reader.result;
-            analyzeAllFrames([base64]);
+            analyzeImageFile(base64);
         };
         reader.readAsDataURL(file);
     };
+
+    const analyzeImageFile = async (base64Image) => {
+        console.log(`COMMENT: analyzeImageFile called with file: ${base64Image.name}`);
+        setIsLoading(true);
+
+        const dataToSend = {
+            image: base64Image,
+        }
+        console.log("Sending data to backend:", dataToSend);
+
+        try {
+            const res = await axios.post("http://localhost:8000/upload", dataToSend, {
+                headers: {"Content-Type": "application/json"}
+            });
+
+            console.log("Prediction results:", res.data);
+            navigate("/results", {
+                state: {
+                    results: res.data,
+                    error: res.data.status_code === 400 ? "some error" : null,
+                    processedResults: false,
+                    previewImageBase64: ""
+                }
+            });
+            setIsLoading(false);
+        } catch(err){
+            console.error("Error during image analysis:", err);
+            setIsLoading(false);
+            navigate("/results", {
+                state: {
+                    results: null,
+                    error: "Failed to analyze the image. Please try again.",
+                    processedResults: false,
+                    previewImageBase64: ""
+                }
+            });
+        }
+    }
 
     const capturePhoto = () => {
         const canvas = document.createElement('canvas');
@@ -419,6 +355,8 @@ const EyeScan = () => {
         navigate("/results", {
             state: {
                 results: res.data,
+                error: res.data.status_code === 400 ? "some error" : null,
+                processedResults: true,
                 previewImageBase64: topImages?.[0]?.image || ""
             }
         });
@@ -465,19 +403,19 @@ const EyeScan = () => {
                     <ul className="text-blue-800 space-y-3">
                         <li className="flex items-start">
                             <span className="text-green-600 mr-2">✔</span>
-                            <span>Ensure no light reflections on the eyes when taking the photo</span>
+                            <span>{EYESCANCONTENT.RECOMMENDATIONS[0]}</span>
                         </li>
                         <li className="flex items-start">
                             <span className="text-green-600 mr-2">✔</span>
-                            <span>Keep the eye open and look directly at the camera</span>
+                            <span>{EYESCANCONTENT.RECOMMENDATIONS[1]}</span>
                         </li>
                         <li className="flex items-start">
                             <span className="text-green-600 mr-2">✔</span>
-                            <span>Make sure the image is clear and not blurry — clean your camera if needed</span>
+                            <span>{EYESCANCONTENT.RECOMMENDATIONS[2]}</span>
                         </li>
                         <li className="flex items-start">
                             <span className="text-green-600 mr-2">✔</span>
-                            <span>Locate your eyes inside the bounding boxes</span>
+                            <span>{EYESCANCONTENT.RECOMMENDATIONS[3]}</span>
                         </li>
                     </ul>
                 </div>
@@ -492,6 +430,7 @@ const EyeScan = () => {
                     >
                         <Upload className="h-10 w-10 mb-2"/>
                         Upload Image
+                        <h6>Image should be of a single eye</h6>
                     </button>
                     <input
                         type="file"
@@ -512,6 +451,7 @@ const EyeScan = () => {
                     >
                         <Camera className="h-10 w-10 mb-2"/>
                         Use Camera
+                        <h6>Snapshot your face</h6>
                     </button>
 
                     <button
@@ -526,6 +466,7 @@ const EyeScan = () => {
                     >
                         <Video className="h-10 w-10 mb-2"/>
                         Record Video
+                        <h6>Record your face</h6>
                     </button>
                 </div>
 

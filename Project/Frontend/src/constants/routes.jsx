@@ -1,8 +1,11 @@
+
 export const ROUTES = {
   HOME: "/",
-  HELPER: "/helper",
-  UPLOAD: "/video-upload",
-  RECORD: "/record-video",
-  RESULT: "/result",
+  EYESCAN: "/scan",
+  RESULTS: "/results",
+  ABOUT: "/about",
+  TECHNOLOGY: "/technology",
+  TEAM: "/team",
   CONTACT: "/contact",
+  NOT_FOUND: "*",
 };
