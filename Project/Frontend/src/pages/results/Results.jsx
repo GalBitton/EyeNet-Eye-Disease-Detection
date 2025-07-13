@@ -3,31 +3,58 @@ import { useLocation, Link } from 'react-router-dom';
 import {Camera, Download, AlertTriangle, XCircle, EyeOff } from 'lucide-react';
 import EyeResultCard from './EyeResultCard';
 import { exportToPDF } from './ReportExporter';
-import { generateRecommendations } from '../../utils/generateRecommendations';
+import ErrorState from "../ErrorState.jsx";
 
 const Results = () => {
     const location = useLocation();
-    const results = location.state?.results;
     const error = location.state?.error;
     const processedResults = location.state?.processedResults;
-    const imageBase64 = location.state?.previewImageBase64;
+    const parsedResults = JSON.parse(location.state?.results?.body || '{}');
 
-       if (error) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-                <div className="bg-white shadow rounded-lg p-8 w-full max-w-lg text-center">
-                    <XCircle className="text-red-500 w-16 h-16 mx-auto mb-4"/>
-                    <h2 className="text-2xl font-bold text-red-600 mb-2">An Error Occurred</h2>
-                    <p className="text-gray-700 mb-4">{error}</p>
-                    <Link to="/scan" className="btn btn-primary inline-flex items-center">
-                        <Camera className="mr-2"/> Try Again
-                    </Link>
-                </div>
-            </div>
-        );
-       }
+   if (error) {
+    return <ErrorState error={error} />;
+   }
 
-    if (!results) {
+   const eyes = []
+    if (processedResults) {
+        const {left_eye, right_eye} = parsedResults;
+
+        if (left_eye) {
+            eyes.push({
+                side: 'Left Eye',
+                detected: left_eye.best_prediction !== 'Not Detected',
+                prediction: left_eye.best_prediction,
+                scores: left_eye.average_scores,
+                image: left_eye.image_preview || null,
+                gradCam: left_eye.grad_cam_preview || null,
+            });
+        }
+
+        if (right_eye) {
+            eyes.push({
+                side: 'Right Eye',
+                detected: right_eye.best_prediction !== 'Not Detected',
+                prediction: right_eye.best_prediction,
+                scores: right_eye.average_scores,
+                image: right_eye.image_preview || null,
+                gradCam: right_eye.grad_cam_preview || null,
+            });
+        }
+    } else {
+        // Scenario 1 — uploaded cropped eye
+        const { left_eye } = parsedResults;
+
+        eyes.push({
+            side: 'Eye',
+            detected: left_eye.best_prediction !== 'Not Detected',
+            prediction: left_eye.best_prediction,
+            scores: left_eye.average_scores,
+            image: left_eye.image_preview || null,
+            gradCam: left_eye.grad_cam_preview || null,
+        });
+    }
+
+    if (eyes.length === 0) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
                 <div className="bg-white shadow rounded-lg p-8 w-full max-w-lg text-center">
@@ -41,58 +68,22 @@ const Results = () => {
             </div>
         );
     }
-    const parsedResults = JSON.parse(results.body);
-    const eyes = [];
-
-    if(processedResults){
-        const {left_eye, right_eye} = parsedResults;
-
-        if (left_eye.best_prediction !== 'Not Detected') eyes.push({side: 'Left Eye', data: left_eye});
-        if (right_eye.best_prediction !== 'Not Detected') eyes.push({side: 'Right Eye', data: right_eye});
-
-        if (!eyes.length) {
-            return <p>No eyes found in the images, sorry.</p>;
-        }
-    }
-    else{
-        const { eye_image } = parsedResults;
-
-        // Find the best prediction
-        const bestPrediction = Object.entries(eye_image).reduce(
-            (best, [key, value]) => (value > best.value ? { key, value } : best),
-            { key: '', value: 0 }
-        );
-
-        eyes.push({
-            side: 'Eye Image',
-            data: {
-                best_prediction: bestPrediction.key,
-                average_scores: eye_image
-            }
-        });
-    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold text-center mb-4">Analysis Results</h1>
+                <h1 className="text-4xl font-bold text-center mb-4">Analysis Results</h1>
                 <p className="text-center mb-8">Here are the results from your eye health scan</p>
 
-                {imageBase64 && (
-                    <div className="text-center mb-8">
-                        <img src={imageBase64} alt="Uploaded" className="w-64 mx-auto rounded-lg shadow" />
-                    </div>
-                )}
-
                 {eyes.map((eye) => (
-                    <EyeResultCard key={eye.side} {...eye} generateRecommendations={generateRecommendations} />
+                    <EyeResultCard key={eye.side} {...eye} />
                 ))}
 
                 <div className="flex justify-center gap-4 mt-6">
                     <Link to="/scan" className="btn btn-primary">
                         <Camera className="mr-2" /> Take Another Scan
                     </Link>
-                    <button onClick={() => exportToPDF({ eyes, imageBase64 })} className="btn btn-outline-primary">
+                    <button onClick={() => exportToPDF({ eyes })} className="btn btn-outline-primary">
                         <Download className="mr-2" /> Download Results
                     </button>
                 </div>

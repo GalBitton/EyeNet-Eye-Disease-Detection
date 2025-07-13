@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { generateRecommendations } from '../../utils/generateRecommendations';
 
-export const exportToPDF = ({ eyes, imageBase64 }) => {
+export const exportToPDF = ({ eyes }) => {
     const doc = new jsPDF();
     const margin = 20;
     let y = margin;
@@ -15,36 +15,33 @@ export const exportToPDF = ({ eyes, imageBase64 }) => {
 
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, y, { align: "center" });
-    y += 10;
+    y += 20;
 
-    if (imageBase64) {
-        const imgWidth = 80, imgHeight = 60;
-        const imgX = (210 - imgWidth) / 2;
-        y += 10;
-        doc.addImage(imageBase64, 'JPEG', imgX, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-    }
-
-    eyes.forEach(({ side, data }) => {
-        const prediction = data.best_prediction;
-        const confidence = data.average_scores[prediction] / 100;
-        const recommendations = generateRecommendations(prediction);
-
-        y += 15;
-        doc.setFontSize(16).text(`${side} Prediction`, margin, y);
-
+    eyes.forEach(({ side, prediction, scores, image, gradCam }) => {
+        doc.setFontSize(16).text(`${side} Prediction: ${prediction}`, margin, y);
         y += 8;
-        doc.setFontSize(14).text(`Prediction: ${prediction} (${(confidence * 100).toFixed(1)}%)`, margin, y);
 
+        const confidence = scores[prediction];
+        doc.setFontSize(12).text(`Confidence: ${confidence.toFixed(1)}%`, margin, y);
         y += 10;
+
+        if (image) {
+            doc.addImage(image, 'PNG', margin, y, 60, 45);
+            if (gradCam) {
+                doc.addImage(gradCam, 'PNG', margin + 70, y, 60, 45);
+            }
+            y += 50;
+        }
+
         autoTable(doc, {
             startY: y,
             head: [["Condition", "Confidence"]],
-            body: Object.entries(data.average_scores).map(([k, v]) => [k, `${v.toFixed(2)}%`]),
+            body: Object.entries(scores).map(([k, v]) => [k, `${v.toFixed(2)}%`]),
             margin: { left: margin, right: margin },
         });
         y = doc.lastAutoTable.finalY + 10;
 
+        const recommendations = generateRecommendations(prediction);
         recommendations.forEach((rec, i) => {
             doc.text(`• ${rec}`, margin + 2, y + i * 7);
         });

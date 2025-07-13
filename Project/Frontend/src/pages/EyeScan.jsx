@@ -209,10 +209,10 @@ const drawFaceBox = (ctx, width, height) => {
             console.log("Prediction results:", res.data);
             navigate("/results", {
                 state: {
-                    results: res.data,
-                    error: res.data.status_code === 400 ? "some error" : null,
+                    results: res.data,  // directly the dict
+                    error: null,        // no 400 error for upload
                     processedResults: false,
-                    previewImageBase64: ""
+                    previewImageBase64: base64Image
                 }
             });
             setIsLoading(false);
@@ -355,7 +355,7 @@ const drawFaceBox = (ctx, width, height) => {
         navigate("/results", {
             state: {
                 results: res.data,
-                error: res.data.status_code === 400 ? "some error" : null,
+                error: res.data.status_code === 400 ? "No valid eye images detected" : null,
                 processedResults: true,
                 previewImageBase64: topImages?.[0]?.image || ""
             }
