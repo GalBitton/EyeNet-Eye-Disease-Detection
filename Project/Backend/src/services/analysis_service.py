@@ -4,7 +4,6 @@ from src.utils.inference import predict_from_full_face_image  # ודא שזה מ
 
 def analyze_images(image_storage):
     results, threads, lock = [], [], Lock()
-
     for img in image_storage:
         t = Thread(target=_thread_target, args=(img, results, lock))
         t.start()
@@ -22,26 +21,9 @@ def analyze_images(image_storage):
         leye = r.get("left_eye", {})
         reye = r.get("right_eye", {})
 
-        if leye.get("best_prediction") != "Not Detected":
-            if "average_scores" in leye:
-                for cls in CLASSES:
-                    left_eye_sums[cls] += leye["average_scores"][cls]
-                left_eye_counts += 1
-            if left_preview is None:
-                left_preview = {
-                    "image_preview": leye["image_preview"],
-                    "grad_cam_preview": leye["grad_cam_preview"]
-                }
+        left_eye_counts, left_preview = _calculate_scores_and_counts(leye, left_eye_sums, left_eye_counts, left_preview)
 
-        if reye.get("best_prediction") != "Not Detected":
-            for cls in CLASSES:
-                right_eye_sums[cls] += reye["average_scores"][cls]
-            right_eye_counts += 1
-            if right_preview is None:
-                right_preview = {
-                    "image_preview": reye["image_preview"],
-                    "grad_cam_preview": reye["grad_cam_preview"]
-                }
+        right_eye_counts, right_preview = _calculate_scores_and_counts(reye, right_eye_sums, right_eye_counts, right_preview)
 
     if left_eye_counts == 0 and right_eye_counts == 0:
         return {"status_code": 400, "body": {"error": "No valid eye images detected"}}
@@ -59,14 +41,14 @@ def analyze_images(image_storage):
             "left_eye": {
                 "average_scores": left_eye_avg,
                 "best_prediction": left_best,
-                "image_preview": left_preview["image_preview"] if left_preview else None,
-                "grad_cam_preview": left_preview["grad_cam_preview"] if left_preview else None
+                "image_preview": (left_preview or {}).get("image_preview"),
+                "grad_cam_preview": (left_preview or {}).get("grad_cam_preview")
             },
             "right_eye": {
                 "average_scores": right_eye_avg,
                 "best_prediction": right_best,
-                "image_preview": right_preview["image_preview"] if right_preview else None,
-                "grad_cam_preview": right_preview["grad_cam_preview"] if right_preview else None
+                "image_preview": (right_preview or {}).get("image_preview"),
+                "grad_cam_preview": (right_preview or {}).get("grad_cam_preview")
             }
         }
     }
@@ -80,3 +62,15 @@ def _thread_target(img,results, lock):
 # Calculate averages
 def _average_scores(sums, count):
     return {cls: round(sums[cls] / count, 2) if count > 0 else 0.0 for cls in CLASSES}
+
+def _calculate_scores_and_counts(eye, eye_sums, eye_counts, preview):
+    if eye.get("best_prediction") != "Not Detected" and "average_scores" in eye:
+        for cls in CLASSES:
+            eye_sums[cls] += eye["average_scores"][cls]
+        eye_counts += 1
+        if preview is None:
+            preview = {
+                "image_preview": eye["image_preview"],
+                "grad_cam_preview": eye["grad_cam_preview"]
+            }
+    return eye_counts, preview

@@ -10,6 +10,7 @@ from .image_io import base64_to_image
 from .model_loader import get_model
 from .logger import logger
 
+model = get_model()
 
 def preprocess_eye(eye_img):
     resized = cv2.resize(eye_img, (224, 224))
@@ -57,7 +58,6 @@ def generate_gradcam_base64(model, img_array, predicted_class, last_conv_layer_n
     return gradcam_base64
 
 def predict_from_uploaded_image(image_b64):
-    model = get_model()
     # decode base64
     image_data = base64.b64decode(image_b64.split(",")[1])
     nparr = np.frombuffer(image_data, np.uint8)
@@ -94,8 +94,6 @@ def predict_from_uploaded_image(image_b64):
     }
 
 def predict_from_full_face_image(image_dict):
-    model = get_model()
-
     image_path = base64_to_image(image_dict["image"])
     left_eye, right_eye = detect_face_and_eyes(image_path)
 

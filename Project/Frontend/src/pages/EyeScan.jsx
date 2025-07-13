@@ -19,7 +19,7 @@ const EyeScan = () => {
     const [isVideoMode, setIsVideoMode] = useState(false);
     const resizeCanvasRef = useRef(null);
 
-// Setup once
+    // Setup once
     useEffect(() => {
         ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
     }, []);
@@ -57,7 +57,7 @@ const EyeScan = () => {
         return variance;
     };
 
-    const runYoloOnImage = async (canvas) => {
+    const runYoloOnImageToDetectFace = async (canvas) => {
         try {
             const ctx = canvas.getContext("2d");
             const imageData = ctx.getImageData(0, 0, 640, 640);
@@ -121,25 +121,25 @@ const EyeScan = () => {
         setRecording(false);
     };
 
-const drawFaceBox = (ctx, width, height) => {
-    ctx.clearRect(0, 0, width, height);
+    const drawFaceBoundingBox = (ctx, width, height) => {
+        ctx.clearRect(0, 0, width, height);
 
-    ctx.strokeStyle = "rgba(0, 255, 0, 0.9)";
-    ctx.lineWidth = 3;
-    ctx.font = "18px Arial";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        ctx.strokeStyle = "rgba(0, 255, 0, 0.9)";
+        ctx.lineWidth = 3;
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
 
-    // Define box dimensions
-    const boxW = width * 0.4;   // e.g., 40% of canvas width
-    const boxH = height * 0.5;  // e.g., 50% of canvas height
+        // Define box dimensions
+        const boxW = width * 0.4;   // e.g., 40% of canvas width
+        const boxH = height * 0.5;  // e.g., 50% of canvas height
 
-    // Center the box in the canvas
-    const boxX = (width - boxW) / 2;
-    const boxY = (height - boxH) / 2;
+        // Center the box in the canvas
+        const boxX = (width - boxW) / 2;
+        const boxY = (height - boxH) / 2;
 
-    ctx.strokeRect(boxX, boxY, boxW, boxH);
-    ctx.fillText("Face", boxX + 10, boxY - 10);
-};
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+        ctx.fillText("Face", boxX + 10, boxY - 10);
+    };
 
     const startCamera = async () => {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -161,7 +161,7 @@ const drawFaceBox = (ctx, width, height) => {
             const ctx = canvas.getContext("2d");
             canvas.width = videoRef.current.videoWidth || 640;
             canvas.height = videoRef.current.videoHeight || 480;
-            drawFaceBox(ctx, canvas.width, canvas.height);
+            drawFaceBoundingBox(ctx, canvas.width, canvas.height);
         };
 
         if (videoRef.current.readyState >= 2) resizeCanvasRef.current();
@@ -182,51 +182,41 @@ const drawFaceBox = (ctx, width, height) => {
         }
     };
 
-    const analyzeFile = async (file) => {
-        console.log(`COMMENT: analyzeFile called with file: ${file.name}`);
+    const analyzeUploadedFile = async (file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
             const base64 = reader.result;
-            analyzeImageFile(base64);
+            analyzeUploadedCroppedImage(base64);
         };
         reader.readAsDataURL(file);
     };
 
-    const analyzeImageFile = async (base64Image) => {
-        console.log(`COMMENT: analyzeImageFile called with file: ${base64Image.name}`);
+    const analyzeUploadedCroppedImage = async (base64Image) => {
         setIsLoading(true);
-
-        const dataToSend = {
-            image: base64Image,
-        }
-        console.log("Sending data to backend:", dataToSend);
+        const dataToSend = {image: base64Image,}
 
         try {
             const res = await axios.post("http://localhost:8000/upload", dataToSend, {
                 headers: {"Content-Type": "application/json"}
             });
-
-            console.log("Prediction results:", res.data);
             navigate("/results", {
                 state: {
                     results: res.data,  // directly the dict
                     error: null,        // no 400 error for upload
-                    processedResults: false,
-                    previewImageBase64: base64Image
+                    processedResults: false
                 }
             });
-            setIsLoading(false);
         } catch(err){
             console.error("Error during image analysis:", err);
-            setIsLoading(false);
             navigate("/results", {
                 state: {
                     results: null,
                     error: "Failed to analyze the image. Please try again.",
-                    processedResults: false,
-                    previewImageBase64: ""
+                    processedResults: false
                 }
             });
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -238,7 +228,7 @@ const drawFaceBox = (ctx, width, height) => {
         ctx.drawImage(videoRef.current, 0, 0);
         const base64 = canvas.toDataURL("image/png");
         stopCamera();
-        analyzeAllFrames([base64]);
+        analyzeFramesFromCamera([base64]);
     };
 
     const startRecording = (durationSeconds = 5) => {
@@ -291,7 +281,7 @@ const drawFaceBox = (ctx, width, height) => {
         video.addEventListener("loadeddata", () => {
             const capture = () => {
                 if (video.ended || video.currentTime >= video.duration) {
-                    analyzeAllFrames(capturedFrames);
+                    analyzeFramesFromCamera(capturedFrames);
                     return;
                 }
                 canvas.width = video.videoWidth;
@@ -304,63 +294,68 @@ const drawFaceBox = (ctx, width, height) => {
         });
     };
 
-    const analyzeAllFrames = async (frameList) => {
-        console.log(`COMMENT: analyzeAllFrames called with ${frameList.length} frames`);
+    const analyzeFramesFromCamera = async (frameList) => {
         setIsLoading(true);
-        const temp = await Promise.all(frameList.map(async (img) => {
-            const image = new Image();
-            image.src = img;
-            await new Promise((res) => (image.onload = res));
+        try {
+            const temp = await Promise.all(frameList.map(async (img) => {
+                const image = new Image();
+                image.src = img;
+                await new Promise((res) => (image.onload = res));
 
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = 640;
-            canvas.height = 640;
-            ctx.drawImage(image, 0, 0, 640, 640);
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                canvas.width = 640;
+                canvas.height = 640;
+                ctx.drawImage(image, 0, 0, 640, 640);
 
-            const blur = detectBlurWithLaplacian(canvas);
-            console.log(`COMMENT: blur=${blur}`);
-            // if (blur < 100) return null;
+                const blur = detectBlurWithLaplacian(canvas);
+                // if (blur < 100) return null;
 
-            const { score, box } = await runYoloOnImage(canvas);
-            const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-            console.log(`COMMENT: analyzeAllFrames: score=${score}, box=${JSON.stringify(box)}, blur=${blur}`);
-            return { blob, score, box, blur };
-        }));
-        console.log(`COMMENT: analyzeAllFrames: processed ${temp.length} frames`);
-        const validImages = temp.filter(Boolean);
-        console.log(`COMMENT: analyzeAllFrames: valid images count = ${validImages.length}`);
-        const topImages = validImages
-            .sort((a, b) => b.score - a.score)
-            .slice(0, Math.max(5, Math.ceil(validImages.length * 0.3)));
-        console.log(`COMMENT: analyzeAllFrames: top images count = ${topImages.length}`);
-        const blobToBase64 = (blob) => new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
-        });
+                const {score, box} = await runYoloOnImageToDetectFace(canvas);
+                const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+                return {blob, score, box, blur};
+            }));
+            const validImages = temp.filter(Boolean);
+            const topImages = validImages
+                .sort((a, b) => b.score - a.score)
+                .slice(0, Math.max(5, Math.ceil(validImages.length * 0.3)));
 
-        const dataToSend = await Promise.all(topImages.map(async (item) => ({
-            image: await blobToBase64(item.blob),
-            score: item.score,
-            blur: item.blur,
-            box: item.box
-        })));
-        console.log("Sending data to backend:", dataToSend);
-        const res =         await axios.post("http://localhost:8000/predict", dataToSend, {
-            headers: { "Content-Type": "application/json" }
-        });
+            const blobToBase64 = (blob) => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
 
-        console.log("Prediction results:", res.data);
-        navigate("/results", {
+            const dataToSend = await Promise.all(topImages.map(async (item) => ({
+                image: await blobToBase64(item.blob),
+                score: item.score,
+                blur: item.blur,
+                box: item.box
+            })));
+
+            const res = await axios.post("http://localhost:8000/predict", dataToSend, {
+                headers: {"Content-Type": "application/json"}
+            });
+
+            navigate("/results", {
+                state: {
+                    results: res.data,
+                    error: res.data.status_code === 400 ? "No valid eye images detected" : null,
+                    processedResults: true
+                }
+            });
+        }catch(err) {
+            console.error("Error during camera frames analysis:", err);
+                    navigate("/results", {
             state: {
-                results: res.data,
-                error: res.data.status_code === 400 ? "No valid eye images detected" : null,
-                processedResults: true,
-                previewImageBase64: topImages?.[0]?.image || ""
-            }
+                results: null,
+                error: err?.response?.data?.message || "Failed to analyze camera frames. Please try again.",
+                processedResults: false,
+            },
         });
+    } finally {
         setIsLoading(false);
+    }
     };
 
     const extractBestFrame = (videoUrl) => {
@@ -369,7 +364,7 @@ const drawFaceBox = (ctx, width, height) => {
 
     const handleFileSelect = (e) => {
         const file = e.target.files?.[0];
-        if (file) analyzeFile(file);
+        if (file) analyzeUploadedFile(file);
     };
 
     return (

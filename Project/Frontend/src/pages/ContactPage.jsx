@@ -1,196 +1,131 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from 'lucide-react';
-import {COMMONTEXT} from "../constants/constants.jsx";
+import { COMMONTEXT } from '../constants/constants.jsx';
+import SectionHeader from '../components/ui/SectionHeader.jsx';
+import { useContactForm } from '../hooks/useContactForm.js';
+
+const ContactInfoItem = ({ icon, bgColor, title, children }) => (
+  <div className="flex items-start space-x-4">
+    <div className={`${bgColor} p-3 rounded-full`}>{icon}</div>
+    <div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>
+      <p className="text-gray-600">{children}</p>
+    </div>
+  </div>
+);
+
+const QuickLinksList = () => (
+  <div className="bg-gray-50 p-6 rounded-lg">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Help</h3>
+    <ul className="space-y-2 text-gray-600">
+      <li>• <a href="#" className="hover:text-blue-600">Frequently Asked Questions</a></li>
+      <li>• <a href="#" className="hover:text-blue-600">User Guide & Tutorials</a></li>
+      <li>• <a href="#" className="hover:text-blue-600">Technical Support</a></li>
+      <li>• <a href="#" className="hover:text-blue-600">Medical Disclaimer</a></li>
+    </ul>
+  </div>
+);
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your API call or backend integration here
-  };
-
+  const { formData, handleChange, handleSubmit } = useContactForm();
   return (
       <div className="min-h-screen bg-white">
-        {/* Hero Section */}
+        {/* Hero */}
         <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <MessageCircle className="h-16 w-16 text-blue-600 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Contact Us
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Have questions about EyeNet? Need support or want to learn more?
-              We're here to help and would love to hear from you.
-            </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+                title="Contact Us"
+                subtitle="Have questions about EyeNet? Need support or want to learn more? We're here to help and would love to hear from you."
+                className="text-center"
+            />
+            <MessageCircle className="h-16 w-16 text-blue-600 mx-auto mt-4"/>
           </div>
         </section>
 
         {/* Contact Info and Form */}
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Contact Info */}
+            {/* Info */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-8">Get in Touch</h2>
 
               <div className="space-y-6 mb-8">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <Mail className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">{COMMONTEXT.EMAIL}</p>
-                    <p className="text-gray-600">{COMMONTEXT.SUPPORT_EMAIL}</p>
-                  </div>
-                </div>
+                <ContactInfoItem
+                    icon={<Mail className="h-6 w-6 text-blue-600"/>}
+                    bgColor="bg-blue-100"
+                    title="Email"
+                >
+                  {COMMONTEXT.EMAIL}<br/>{COMMONTEXT.SUPPORT_EMAIL}
+                </ContactInfoItem>
 
-                <div className="flex items-start space-x-4">
-                  <div className="bg-green-100 p-3 rounded-full">
-                    <Phone className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Phone</h3>
-                    <p className="text-gray-600">{COMMONTEXT.PHONE}</p>
-                    <p className="text-gray-600">{COMMONTEXT.SECOND_PHONE}</p>
-                  </div>
-                </div>
+                <ContactInfoItem
+                    icon={<Phone className="h-6 w-6 text-green-600"/>}
+                    bgColor="bg-green-100"
+                    title="Phone"
+                >
+                  {COMMONTEXT.PHONE}<br/>{COMMONTEXT.SECOND_PHONE}
+                </ContactInfoItem>
 
-                <div className="flex items-start space-x-4">
-                  <div className="bg-purple-100 p-3 rounded-full">
-                    <MapPin className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Address</h3>
-                    <p className="text-gray-600">
-                      {COMMONTEXT.ADDRESS}
-                    </p>
-                  </div>
-                </div>
+                <ContactInfoItem
+                    icon={<MapPin className="h-6 w-6 text-purple-600"/>}
+                    bgColor="bg-purple-100"
+                    title="Address"
+                >
+                  {COMMONTEXT.ADDRESS}
+                </ContactInfoItem>
 
-                <div className="flex items-start space-x-4">
-                  <div className="bg-yellow-100 p-3 rounded-full">
-                    <Clock className="h-6 w-6 text-yellow-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Support Hours</h3>
-                    <p className="text-gray-600">
-                      Sunday - Thursday: {COMMONTEXT.SUPPORT_HOURS.WEEK}<br />
-                      Friday: {COMMONTEXT.SUPPORT_HOURS.FRIDAY}<br />
-                      Saturday: {COMMONTEXT.SUPPORT_HOURS.SATURDAY}
-                    </p>
-                  </div>
-                </div>
+                <ContactInfoItem
+                    icon={<Clock className="h-6 w-6 text-yellow-600"/>}
+                    bgColor="bg-yellow-100"
+                    title="Support Hours"
+                >
+                  Sunday - Thursday: {COMMONTEXT.SUPPORT_HOURS.WEEK}<br/>
+                  Friday: {COMMONTEXT.SUPPORT_HOURS.FRIDAY}<br/>
+                  Saturday: {COMMONTEXT.SUPPORT_HOURS.SATURDAY}
+                </ContactInfoItem>
               </div>
 
-              {/* Quick Links */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Help</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li>• <a href="#" className="hover:text-blue-600">Frequently Asked Questions</a></li>
-                  <li>• <a href="#" className="hover:text-blue-600">User Guide & Tutorials</a></li>
-                  <li>• <a href="#" className="hover:text-blue-600">Technical Support</a></li>
-                  <li>• <a href="#" className="hover:text-blue-600">Medical Disclaimer</a></li>
-                </ul>
-              </div>
+              <QuickLinksList/>
             </div>
 
-            {/* Contact Form */}
+            {/* Form */}
             <div className="lg:col-span-2">
               <div className="bg-white shadow-xl rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          required
-                          value={formData.name}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Enter your full name"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          required
-                          value={formData.email}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Enter your email"
-                      />
-                    </div>
+                    <input type="text" name="name" value={formData.name} onChange={handleChange}
+                           placeholder="Full Name *" required
+                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange}
+                           placeholder="Email Address *" required
+                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
 
-                  <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                      Subject *
-                    </label>
-                    <select
-                        id="subject"
-                        name="subject"
-                        required
-                        value={formData.subject}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Select a subject</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="technical">Technical Support</option>
-                      <option value="medical">Medical Questions</option>
-                      <option value="partnership">Partnership</option>
-                      <option value="press">Press & Media</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                      Message *
-                    </label>
-                    <textarea
-                        id="message"
-                        name="message"
-                        required
-                        rows="6"
-                        value={formData.message}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Tell us how we can help you..."
-                    ></textarea>
-                  </div>
-
-                  <button
-                      type="submit"
-                      className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center"
+                  <select name="subject" value={formData.subject} onChange={handleChange} required
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
-                    <Send className="mr-2 h-5 w-5" />
-                    Send Message
+                    <option value="">Select a subject *</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="technical">Technical Support</option>
+                    <option value="medical">Medical Questions</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="press">Press & Media</option>
+                    <option value="other">Other</option>
+                  </select>
+
+                  <textarea name="message" rows="6" value={formData.message} onChange={handleChange} required
+                            placeholder="Your message *"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+
+                  <button type="submit"
+                          className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 flex items-center justify-center"
+                  >
+                    <Send className="mr-2 h-5 w-5"/> Send Message
                   </button>
                 </form>
               </div>
@@ -198,7 +133,7 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* Medical Emergency Notice */}
+        {/* Medical Notice */}
         <section className="py-20 bg-yellow-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-8">

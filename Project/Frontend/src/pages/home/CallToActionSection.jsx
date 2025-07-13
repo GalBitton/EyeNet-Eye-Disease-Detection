@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Camera } from 'lucide-react';
 import {HOMECONTENT} from "../../constants/constants.jsx";
 
-const CTASection = () => (
+const CallToActionSection = () => (
     <section className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
@@ -23,4 +23,4 @@ const CTASection = () => (
     </section>
 );
 
-export default CTASection;
+export default CallToActionSection;

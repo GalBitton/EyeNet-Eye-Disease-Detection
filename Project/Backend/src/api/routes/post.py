@@ -1,7 +1,7 @@
 from robyn import SubRouter
 import json
 from src.services.analysis_service import analyze_images
-from src.services.upload_service import predict_from_uploaded_image
+from src.services.upload_service import analyze_uploaded_image
 router = SubRouter(__file__)
 
 @router.post("/predict")
@@ -31,7 +31,7 @@ async def predict(request):
 @router.post("/upload")
 async def upload(request):
     body = json.loads(request.body)
-    response = predict_from_uploaded_image(body["image"])
+    response = analyze_uploaded_image(body["image"])
     return {
         "status_code": 200,
         "body": json.dumps(response),
