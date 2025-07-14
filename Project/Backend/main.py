@@ -16,4 +16,4 @@ app.include_router(post_router)
 get_model()
 
 if __name__ == '__main__':
-    app.start(port=PORT)
+    app.start(host="0.0.0.0", port=PORT)

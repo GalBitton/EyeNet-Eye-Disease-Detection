@@ -5,6 +5,9 @@ import * as ort from "onnxruntime-web";
 import axios from "axios";
 import {EYESCANCONTENT} from "../constants/constants.jsx";
 
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}:${import.meta.env.VITE_API_PORT}`;
+const uploadEndpoint = `${API_BASE_URL}/upload`;
+const predictEndpoint = `${API_BASE_URL}/predict`;
 
 const EyeScan = () => {
     const [stream, setStream] = useState(null);
@@ -196,7 +199,7 @@ const EyeScan = () => {
         const dataToSend = {image: base64Image,}
 
         try {
-            const res = await axios.post("http://localhost:8000/upload", dataToSend, {
+            const res = await axios.post(uploadEndpoint, dataToSend, {
                 headers: {"Content-Type": "application/json"}
             });
             navigate("/results", {
@@ -333,7 +336,7 @@ const EyeScan = () => {
                 box: item.box
             })));
 
-            const res = await axios.post("http://localhost:8000/predict", dataToSend, {
+            const res = await axios.post(predictEndpoint, dataToSend, {
                 headers: {"Content-Type": "application/json"}
             });
 
