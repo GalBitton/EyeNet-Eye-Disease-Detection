@@ -1,13 +1,17 @@
-# utils/model_loader.py
 from tensorflow.keras.models import load_model
-from src.constants import paths
-import tensorflow_addons as tfa  # this is critical to load Addons>AdamW
+from src.config.settings import MODEL_PATH, MODEL_NAME
+from src.utils.logger import logger
+from threading import Lock
 
+_model = None
+_model_lock = Lock()
 
-custom_objects = {
-    'Addons>AdamW': tfa.optimizers.AdamW,
-}
-
-print("[INFO] Loading EyeNet model...")
-model = load_model(paths.MODEL_PATH, custom_objects=custom_objects)
-print("[INFO] Model loaded successfully.")
+def get_model():
+    global _model
+    if _model is None:
+        with _model_lock:
+            if _model is None:  # Double-check locking
+                logger.info(f'Loading {MODEL_NAME} model ...')
+                _model = load_model(MODEL_PATH)
+                logger.info(f'{MODEL_NAME} model loaded successfully.')
+    return _model

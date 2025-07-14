@@ -5,7 +5,7 @@ import Results from "../pages/results/Results.jsx";
 import About from "../pages/About.jsx";
 import Technology from "../pages/Technology.jsx";
 import Team from "../pages/Team.jsx";
-import HomePage from "../pages/HomePage.jsx";
+import HomePage from "../pages/home/HomePage.jsx";
 import ContactPage from "../pages/ContactPage.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import {ROUTES} from "../constants/routes.jsx";
