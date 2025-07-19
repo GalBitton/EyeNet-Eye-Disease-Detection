@@ -6,6 +6,7 @@ export const HOMECONTENT = {
   LEARN_MORE: "Learn More",
   VIDEO_TUTORIAL_HEADER: "How to Use EyeNet",
   VIDEO_TUTORIAL_DESC: "Watch this simple tutorial to learn how to use our AI-powered eye detection system.",
+  VIDEO_TUTORIAL_LINK:"https://www.youtube.com/embed/oPTHNvHxKgU",
   FEATURES_HEADER: "Why Choose EyeNet?",
   FEATURES_DESC: "Our advanced AI technology makes eye health screening accessible, accurate, and convenient for everyone.",
   FEATURES: {
@@ -14,7 +15,7 @@ export const HOMECONTENT = {
       DESCRIPTION: "Get accurate eye condition detection results in seconds using our advanced DenseNet121 model with attention mechanisms.",
     },
     HIGH_ACCURACY: {
-      TITLE: "91% Accuracy",
+      TITLE: "98% Accuracy",
       DESCRIPTION: "Trained on over 13,000 images per condition, our AI model delivers reliable detection for cataracts, conjunctivitis, and styes.",
     },
     USER_FRIENDLY: {
@@ -56,7 +57,7 @@ export const ABOUTCONTENT = {
   ],
   SOLUTIONS:[
       "Accessible AI-powered screening from any device",
-      "Instant results with 91% accuracy rate",
+      "Instant results with 98% accuracy rate",
       "Available 24/7 from the comfort of your home",
       "Early detection enabling timely treatment"
   ],
@@ -65,7 +66,7 @@ export const ABOUTCONTENT = {
       "per condition, ensuring high accuracy and reliability.",
       "Get comprehensive eye health analysis in seconds, not hours.\n" +
       "Our optimized system delivers results almost instantly.",
-      "Designed for users aged 10 to 80+, with intuitive interfaces that work\n" +
+      "Designed for users aged 10 to 85+, with intuitive interfaces that work\n" +
       "seamlessly across all devices and platforms."
       ],
   IMPACT:
@@ -73,7 +74,7 @@ export const ABOUTCONTENT = {
         GOAL: "We envision a world where advanced eye health screening is accessible to everyone,\n" +
             "regardless of location, economic status, or access to specialized healthcare facilities.",
         ACCURACY:{
-          HEADER: "91%",
+          HEADER: "98%",
           DESC: "Detection Accuracy"
         },
         DATASET:{
@@ -101,15 +102,16 @@ export const TECHNOLOGY = {
       "Modern web standards"
     ],
     BACKEND:[
-      "FastAPI for high-performance APIs",
+      "Robyn for high-performance APIs",
       "Python ecosystem integration",
       "Async request handling",
-      "Automatic API documentation",
+      "Automatic SwaggerAPI documentation",
       "RESTful architecture",
       "Dockerized for easy deployment"
     ],
     AIML:[
-      "TensorFlow for deep learning",
+      "TensorFlow and Keras for deep learning",
+      "YOLOV8 for face detection",
       "OpenCV for image processing",
       "NumPy for numerical computing",
       "Scikit-learn for ML utilities",

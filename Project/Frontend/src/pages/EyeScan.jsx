@@ -391,7 +391,7 @@ const EyeScan = () => {
                     <Eye className="h-16 w-16 text-blue-600 mx-auto mb-4"/>
                     <h1 className="text-4xl font-bold text-gray-900">Eye Health Scan</h1>
                     <p className="text-lg text-gray-600 mt-2 max-w-xl mx-auto">
-                        Upload or capture a clear image of your eye. Our AI will analyze it for cataracts, stye, or
+                        Upload or capture a clear image of your eyes. Our AI will analyze it for cataracts, stye, or
                         conjunctivitis.
                     </p>
                 </div>
@@ -428,7 +428,7 @@ const EyeScan = () => {
                     >
                         <Upload className="h-10 w-10 mb-2"/>
                         Upload Image
-                        <h6>Image should be of a single eye</h6>
+                        <h6>Image should be of a single cropped eye</h6>
                     </button>
                     <input
                         type="file"

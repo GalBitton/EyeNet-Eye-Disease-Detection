@@ -17,8 +17,8 @@ const Team = () => {
             Meet Our Team
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            A diverse group of experts in AI, medicine, and technology working together
-            to revolutionize eye health screening worldwide.
+            We are two final-semester software engineering students working together on
+            our capstone project to bring innovative technology to eye health screening.
           </p>
         </div>
       </section>
@@ -27,19 +27,19 @@ const Team = () => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
           <div>
-            <SectionHeader title="Interdisciplinary Excellence" />
+            <SectionHeader title="Collaborative Effort" />
             <p className="text-lg text-gray-600 mb-6">
-              Our team brings together world-class expertise from multiple disciplines — AI, ophthalmology,
-              engineering, and UX — creating solutions that are technically advanced and medically sound.
+              This project combines our knowledge and skills in software development, AI, and UX design
+              — aiming to create a meaningful solution that improves accessibility in eye health screening.
             </p>
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">6</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">2</div>
                 <div className="text-gray-600">Team Members</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">25+</div>
-                <div className="text-gray-600">Years Combined Experience</div>
+                <div className="text-3xl font-bold text-green-600 mb-2">Final Project</div>
+                <div className="text-gray-600">Software Engineering Degree</div>
               </div>
             </div>
           </div>
@@ -57,10 +57,10 @@ const Team = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Our Experts"
+            title="Our Project"
             subtitle="Get to know the passionate individuals behind EyeNet"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto max-w-4xl justify-items-center">
             {TEAM.MEMBER.map((member, idx) => (
               <TeamMemberCard
                 key={idx}
@@ -113,11 +113,10 @@ const Team = () => {
       <section className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Join Our Mission
+            Get in Touch
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Are you passionate about using technology to improve healthcare?
-            We’re always looking for talented individuals.
+            Have feedback or ideas about our project? We’d love to hear from you!
           </p>
           <a
             href="mailto:CataractProject3@gmail.com"

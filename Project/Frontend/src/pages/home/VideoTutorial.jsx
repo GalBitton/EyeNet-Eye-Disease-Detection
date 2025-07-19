@@ -13,7 +13,7 @@ const VideoTutorial = () => (
                 <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl aspect-video">
                     <iframe
                         className="w-full h-full"
-                        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                        src={HOMECONTENT.VIDEO_TUTORIAL_LINK}
                         title="EyeNet Tutorial Video"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

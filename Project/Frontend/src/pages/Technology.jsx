@@ -5,7 +5,7 @@ import FeatureListItem from '../components/ui/FeatureListItem';
 import TechStackCard from '../components/ui/TechStackCard';
 import SecurityFeatureItem from '../components/ui/SecurityFeatureItem';
 import { TECHNOLOGY } from "../constants/constants.jsx";
-
+import tech_image from "../assets/EyeNetModel-TechnologyStack.png"
 const Technology = () => {
   return (
     <div className="min-h-screen bg-white">
@@ -79,74 +79,36 @@ const Technology = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Complete Technology Stack"
-            subtitle="A robust, scalable architecture designed for reliability and performance"
+              title="Complete Technology Stack"
+              subtitle="A robust, scalable architecture designed for reliability and performance"
+          />
+          <img
+              src={tech_image}
+              alt="Eye care technology"
+              className="rounded-2xl shadow-xl mx-auto w-80 mb-5"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <TechStackCard
-              icon={<Code />}
-              bgColor="bg-blue-100"
-              iconColor="text-blue-600"
-              title="Frontend"
-              items={TECHNOLOGY.TECH_STACK.FRONTEND}
+                icon={<Code/>}
+                bgColor="bg-blue-100"
+                iconColor="text-blue-600"
+                title="Frontend"
+                items={TECHNOLOGY.TECH_STACK.FRONTEND}
             />
             <TechStackCard
-              icon={<Server />}
-              bgColor="bg-green-100"
-              iconColor="text-green-600"
-              title="Backend"
-              items={TECHNOLOGY.TECH_STACK.BACKEND}
+                icon={<Server/>}
+                bgColor="bg-green-100"
+                iconColor="text-green-600"
+                title="Backend"
+                items={TECHNOLOGY.TECH_STACK.BACKEND}
             />
             <TechStackCard
-              icon={<Brain />}
-              bgColor="bg-purple-100"
-              iconColor="text-purple-600"
-              title="AI/ML"
-              items={TECHNOLOGY.TECH_STACK.AIML}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Security */}
-      <section className="py-20 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Security & Privacy"
-            subtitle="Your privacy and data security are our top priorities"
-            color="text-white"
-            subColor="text-gray-300"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <SecurityFeatureItem
-              icon={<Shield />}
-              bgColor="bg-blue-900"
-              iconColor="text-blue-400"
-              title="End-to-End Encryption"
-              description="All data transmission is encrypted using industry-standard protocols"
-            />
-            <SecurityFeatureItem
-              icon={<Database />}
-              bgColor="bg-green-900"
-              iconColor="text-green-400"
-              title="No Data Storage"
-              description="Images are processed in real-time and not stored on our servers"
-            />
-            <SecurityFeatureItem
-              icon={<Code />}
-              bgColor="bg-purple-900"
-              iconColor="text-purple-400"
-              title="HIPAA Compliant"
-              description="Built following healthcare data protection standards"
-            />
-            <SecurityFeatureItem
-              icon={<Zap />}
-              bgColor="bg-yellow-900"
-              iconColor="text-yellow-400"
-              title="Edge Processing"
-              description="Local processing capabilities for enhanced privacy"
+                icon={<Brain/>}
+                bgColor="bg-purple-100"
+                iconColor="text-purple-600"
+                title="AI/ML"
+                items={TECHNOLOGY.TECH_STACK.AIML}
             />
           </div>
         </div>

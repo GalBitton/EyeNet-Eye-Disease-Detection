@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from 'lucide-react';
 import { COMMONTEXT } from '../constants/constants.jsx';
 import SectionHeader from '../components/ui/SectionHeader.jsx';
-import { useContactForm } from '../hooks/useContactForm.js';
 
 const ContactInfoItem = ({ icon, bgColor, title, children }) => (
   <div className="flex items-start space-x-4">
@@ -14,20 +13,7 @@ const ContactInfoItem = ({ icon, bgColor, title, children }) => (
   </div>
 );
 
-const QuickLinksList = () => (
-  <div className="bg-gray-50 p-6 rounded-lg">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Help</h3>
-    <ul className="space-y-2 text-gray-600">
-      <li>• <a href="#" className="hover:text-blue-600">Frequently Asked Questions</a></li>
-      <li>• <a href="#" className="hover:text-blue-600">User Guide & Tutorials</a></li>
-      <li>• <a href="#" className="hover:text-blue-600">Technical Support</a></li>
-      <li>• <a href="#" className="hover:text-blue-600">Medical Disclaimer</a></li>
-    </ul>
-  </div>
-);
-
 const Contact = () => {
-  const { formData, handleChange, handleSubmit } = useContactForm();
   return (
       <div className="min-h-screen bg-white">
         {/* Hero */}
@@ -84,8 +70,6 @@ const Contact = () => {
                   Saturday: {COMMONTEXT.SUPPORT_HOURS.SATURDAY}
                 </ContactInfoItem>
               </div>
-
-              <QuickLinksList/>
             </div>
 
             {/* Form */}
@@ -93,20 +77,32 @@ const Contact = () => {
               <div className="bg-white shadow-xl rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form
+                    action="https://formspree.io/f/meozeoyd"
+                    method="POST"
+                    className="space-y-6"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="text" name="name" value={formData.name} onChange={handleChange}
-                           placeholder="Full Name *" required
-                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Full Name *"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
-                    <input type="email" name="email" value={formData.email} onChange={handleChange}
-                           placeholder="Email Address *" required
-                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email Address *"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
-                  <select name="subject" value={formData.subject} onChange={handleChange} required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  <select
+                      name="subject"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select a subject *</option>
                     <option value="general">General Inquiry</option>
@@ -117,13 +113,17 @@ const Contact = () => {
                     <option value="other">Other</option>
                   </select>
 
-                  <textarea name="message" rows="6" value={formData.message} onChange={handleChange} required
-                            placeholder="Your message *"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  <textarea
+                      name="message"
+                      rows="6"
+                      required
+                      placeholder="Your message *"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
 
-                  <button type="submit"
-                          className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 flex items-center justify-center"
+                  <button
+                      type="submit"
+                      className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 flex items-center justify-center"
                   >
                     <Send className="mr-2 h-5 w-5"/> Send Message
                   </button>
